@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Integrity Analytics - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+    <div>
+        <h4 class="mb-0">Integrity Analytics</h4>
+        <p class="text-muted small mb-0">
+            {{ bundle.session_count }} session(s) analyzed
+            {% if use_synthetic %}<span class="eg-badge eg-badge-neutral">SYNTHETIC DEMO DATA</span>{% endif %}
+        </p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('insights.analytics') }}" class="btn btn-sm {{ 'eg-btn-primary' if not use_synthetic else 'btn-outline-secondary' }}">Real Sessions</a>
+        <a href="{{ url_for('insights.analytics', source='synthetic') }}" class="btn btn-sm {{ 'eg-btn-primary' if use_synthetic else 'btn-outline-secondary' }}">Synthetic Demo</a>
+    </div>
+</div>
+
+{% if not bundle.has_data %}
+<div class="eg-empty-state">Insufficient data for analysis. Completed sessions are required before analytics can be generated — try the Synthetic Demo view above to see the module working end to end.</div>
+{% else %}
+
+<div class="row g-4 mb-2">
+    <div class="col-lg-6">
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-bar-chart-line"></i> Integrity Score Distribution</div>
+                {% if bundle.score_distribution_chart %}
+                <img src="{{ bundle.score_distribution_chart }}" class="img-fluid" alt="Integrity score distribution">
+                {% else %}<div class="eg-empty-state">Insufficient data for analysis.</div>{% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-pie-chart"></i> Risk Level Distribution</div>
+                {% if bundle.risk_distribution_chart %}
+                <img src="{{ bundle.risk_distribution_chart }}" class="img-fluid" alt="Risk level distribution">
+                {% else %}<div class="eg-empty-state">Insufficient data for analysis.</div>{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-2">
+    <div class="col-lg-6">
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-list-ol"></i> Event Frequency</div>
+                {% if bundle.event_frequency_chart %}
+                <img src="{{ bundle.event_frequency_chart }}" class="img-fluid" alt="Event frequency">
+                {% else %}<div class="eg-empty-state">Insufficient data for analysis.</div>{% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-grid-3x3"></i> Event Frequency Heatmap</div>
+                {% if bundle.event_heatmap_chart %}
+                <img src="{{ bundle.event_heatmap_chart }}" class="img-fluid" alt="Event frequency heatmap">
+                {% else %}<div class="eg-empty-state">Insufficient data for analysis.</div>{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card eg-card mb-2">
+    <div class="card-body p-4">
+        <div class="eg-card-header"><i class="bi bi-people"></i> Cohort Risk Profiling</div>
+        {% if bundle.cohorts %}
+        <div class="table-responsive">
+            <table class="eg-table">
+                <thead><tr><th>Risk Cohort</th><th>Sessions</th><th>Avg Integrity Score</th><th>Avg Violations</th><th>Avg Face Presence</th><th>Most Frequent Event</th></tr></thead>
+                <tbody>
+                    {% for level, c in bundle.cohorts.items() %}
+                    <tr>
+                        <td><span class="eg-badge {{ 'eg-badge-success' if level == 'LOW' else 'eg-badge-warning' if level == 'MEDIUM' else 'eg-badge-danger' }}">{{ level }}</span></td>
+                        <td>{{ c.sessions }}</td>
+                        <td>{{ c.avg_integrity_score }}</td>
+                        <td>{{ c.avg_violations if c.avg_violations is not none else 'N/A' }}</td>
+                        <td>{{ c.avg_face_presence_percent }}{{ '%' if c.avg_face_presence_percent is not none }}</td>
+                        <td>{{ c.most_frequent_event or 'N/A' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if bundle.cohort_comparison_chart %}
+        <img src="{{ bundle.cohort_comparison_chart }}" class="img-fluid mt-3" alt="Cohort comparison">
+        {% endif %}
+        {% else %}
+        <div class="eg-empty-state">Insufficient data for analysis.</div>
+        {% endif %}
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}

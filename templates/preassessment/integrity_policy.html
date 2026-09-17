@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Integrity Policy - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="eg-wizard-steps mb-4">
+    <span class="eg-wizard-step">1. Readiness</span>
+    <span class="eg-wizard-step">2. Details</span>
+    <span class="eg-wizard-step">3. Terms</span>
+    <span class="eg-wizard-step">4. Privacy</span>
+    <span class="eg-wizard-step active">5. Integrity Policy</span>
+    <span class="eg-wizard-step">6. Declaration</span>
+    <span class="eg-wizard-step">7. Confirm</span>
+</div>
+
+<div class="card eg-card">
+    <div class="card-body p-4">
+        <div class="eg-card-header"><i class="bi bi-shield-check"></i> Integrity Policy</div>
+
+        <p class="text-muted">
+            Every assessment attempt begins with an Integrity Score of
+            <strong>{{ starting_score }}</strong>. Points are deducted automatically as monitoring
+            violations are detected. Your score is visible to you in real time throughout the assessment.
+        </p>
+
+        <div class="table-responsive mt-3">
+            <table class="eg-table">
+                <thead>
+                    <tr><th>Violation</th><th>Point Deduction</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Tab Switch</td><td>-{{ penalty_weights.tab_switch }}</td></tr>
+                    <tr><td>Window / Focus Lost</td><td>-{{ penalty_weights.window_blur }}</td></tr>
+                    <tr><td>Face Missing</td><td>-{{ penalty_weights.no_face }}</td></tr>
+                    <tr><td>Multiple Faces Detected</td><td>-{{ penalty_weights.multiple_faces }}</td></tr>
+                    <tr><td>Camera Disconnected</td><td>-{{ penalty_weights.camera_lost }}</td></tr>
+                    <tr><td>Fullscreen Exit</td><td>-{{ penalty_weights.fullscreen_exit }}</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="eg-empty-state mt-3 text-start">
+            <strong>Risk Classification</strong>
+            <ul class="mt-2 mb-0">
+                <li>Score {{ warning_threshold }}-100 &nbsp;→&nbsp; <span class="eg-badge eg-badge-success">Low Risk</span></li>
+                <li>Score {{ high_risk_threshold }}-{{ warning_threshold - 1 }} &nbsp;→&nbsp; <span class="eg-badge eg-badge-warning">Medium Risk</span></li>
+                <li>Score below {{ high_risk_threshold }} &nbsp;→&nbsp; <span class="eg-badge eg-badge-danger">High Risk</span></li>
+            </ul>
+        </div>
+
+        <p class="text-muted small mt-3 mb-0">
+            A violation does not automatically fail your assessment — it lowers your Integrity Score, which is
+            recorded alongside your result for review.
+        </p>
+
+        <form method="POST" action="{{ url_for('preassessment.integrity_policy_continue', assessment_id=assessment.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn eg-btn-primary w-100 mt-4">I Understand — Continue to Declaration</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

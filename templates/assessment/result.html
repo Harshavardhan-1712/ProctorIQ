@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Result - {{ assessment.name }} - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card eg-card">
+            <div class="eg-result-hero">
+                {% if result.passed %}
+                    <i class="bi bi-patch-check-fill" style="font-size:2.4rem;color:var(--eg-success);"></i>
+                    <div class="eg-badge eg-badge-success mt-2">PASSED</div>
+                {% else %}
+                    <i class="bi bi-x-circle-fill" style="font-size:2.4rem;color:var(--eg-danger);"></i>
+                    <div class="eg-badge eg-badge-danger mt-2">NOT PASSED</div>
+                {% endif %}
+                <div class="eg-result-score mt-3">{{ result.percentage }}%</div>
+                <div class="text-muted">{{ result.score | num }} / {{ result.total_marks | num }} marks — {{ assessment.name }}</div>
+                <div class="text-muted small mt-1">{{ assessment_session.user.full_name }}</div>
+            </div>
+
+            <div class="card-body p-4 pt-0">
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-3 col-6">
+                        <div class="eg-status-card justify-content-center text-center">
+                            <div>
+                                <div class="eg-info-label">Correct</div>
+                                <div class="eg-info-value">{{ result.correct_count }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-6">
+                        <div class="eg-status-card justify-content-center text-center">
+                            <div>
+                                <div class="eg-info-label">Incorrect</div>
+                                <div class="eg-info-value">{{ result.incorrect_count }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-6">
+                        <div class="eg-status-card justify-content-center text-center">
+                            <div>
+                                <div class="eg-info-label">Unanswered</div>
+                                <div class="eg-info-value">{{ result.unanswered_count }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-6">
+                        <div class="eg-status-card justify-content-center text-center">
+                            <div>
+                                <div class="eg-info-label">Passing Mark</div>
+                                <div class="eg-info-value">
+                                    {% if assessment.passing_marks is not none %}
+                                        {{ assessment.passing_marks | num }} marks
+                                    {% else %}
+                                        {{ assessment.passing_score_percent }}%
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="eg-status-row">
+                    <span class="eg-status-row-label"><i class="bi bi-stopwatch"></i> Time Taken</span>
+                    <span class="eg-info-value">
+                        {{ '%02d:%02d' % (time_taken_seconds // 60, time_taken_seconds % 60) }}
+                        <span class="text-muted small">of {{ assessment.duration_minutes }}:00 allowed</span>
+                    </span>
+                </div>
+                <div class="eg-status-row">
+                    <span class="eg-status-row-label"><i class="bi bi-shield-check"></i> Integrity Score at Submission</span>
+                    <span class="eg-badge {{ 'eg-badge-success' if risk_label == 'Low' else 'eg-badge-warning' if risk_label == 'Medium' else 'eg-badge-danger' }}">
+                        {{ assessment_session.integrity_score_at_submit }} / 100 — {{ risk_label }} Risk
+                    </span>
+                </div>
+                <div class="eg-status-row">
+                    <span class="eg-status-row-label"><i class="bi bi-exclamation-triangle"></i> Violations Recorded</span>
+                    <span class="eg-badge {{ 'eg-badge-success' if violations_count == 0 else 'eg-badge-warning' }}">{{ violations_count }}</span>
+                </div>
+                <div class="eg-status-row">
+                    <span class="eg-status-row-label"><i class="bi bi-flag"></i> Submission Type</span>
+                    <span class="eg-badge {{ 'eg-badge-warning' if assessment_session.status in ('auto_submitted', 'terminated') else 'eg-badge-success' }}">
+                        {% if assessment_session.status == "auto_submitted" %}Auto-Submitted (Time Expired)
+                        {% elif assessment_session.status == "terminated" %}Terminated by Invigilator
+                        {% else %}Submitted by Candidate{% endif %}
+                    </span>
+                </div>
+                <div class="eg-status-row">
+                    <span class="eg-status-row-label"><i class="bi bi-clock-history"></i> Submitted At</span>
+                    <span class="eg-info-value">{{ result.submitted_at | local_datetime }}</span>
+                </div>
+
+                <a href="{{ url_for('dashboard.dashboard') }}" class="btn eg-btn-primary w-100 mt-4">Return to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

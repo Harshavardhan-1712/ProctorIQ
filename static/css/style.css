@@ -1,0 +1,830 @@
+/* ==========================================================================
+   ExamGuard — Enterprise theme (Module 4)
+   Palette: corporate blue / white / slate. No playful colors or emoji.
+   ========================================================================== */
+
+:root {
+    --eg-primary: #1d4ed8;
+    --eg-primary-dark: #1e3a8a;
+    --eg-primary-light: #eff4ff;
+
+    --eg-slate-900: #0f172a;
+    --eg-slate-800: #1e293b;
+    --eg-slate-700: #334155;
+    --eg-slate-600: #475569;
+    --eg-slate-500: #64748b;
+    --eg-slate-400: #94a3b8;
+    --eg-slate-200: #e2e8f0;
+    --eg-slate-100: #f1f5f9;
+    --eg-slate-50: #f8fafc;
+
+    --eg-success: #15803d;
+    --eg-success-bg: #dcfce7;
+    --eg-warning: #b45309;
+    --eg-warning-bg: #fef3c7;
+    --eg-danger: #b91c1c;
+    --eg-danger-bg: #fee2e2;
+    --eg-neutral-bg: #e2e8f0;
+
+    --eg-sidebar-width: 250px;
+    --eg-radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    background-color: var(--eg-slate-50);
+    font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--eg-slate-800);
+    margin: 0;
+}
+
+a { color: var(--eg-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+h1, h2, h3, h4, h5, h6 { color: var(--eg-slate-900); font-weight: 600; }
+
+/* ==========================================================================
+   Auth pages (login / register) — centered, no sidebar
+   ========================================================================== */
+
+.eg-auth-body {
+    background: linear-gradient(160deg, var(--eg-slate-900) 0%, var(--eg-primary-dark) 60%, var(--eg-primary) 100%);
+    min-height: 100vh;
+}
+
+.eg-auth-main {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.eg-auth-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.eg-auth-brand i { font-size: 1.7rem; }
+
+.eg-auth-tagline {
+    color: #dbeafe;
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+    margin-bottom: 2rem;
+}
+
+.eg-auth-flashes {
+    width: 100%;
+    max-width: 440px;
+}
+
+.eg-auth-card {
+    background: #fff;
+    border-radius: var(--eg-radius);
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+    padding: 2.25rem 2rem;
+    width: 100%;
+    max-width: 440px;
+}
+
+.eg-auth-heading {
+    font-size: 1.4rem;
+    text-align: center;
+    margin-bottom: 0.35rem;
+}
+
+.eg-auth-subheading {
+    text-align: center;
+    color: var(--eg-slate-500);
+    font-size: 0.9rem;
+    margin-bottom: 1.75rem;
+}
+
+.eg-auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    color: var(--eg-slate-600);
+}
+
+/* ==========================================================================
+   Authenticated app shell — sidebar + topbar
+   ========================================================================== */
+
+.eg-app-body { background-color: var(--eg-slate-50); }
+
+.eg-app-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+.eg-sidebar {
+    width: var(--eg-sidebar-width);
+    flex-shrink: 0;
+    background-color: var(--eg-slate-900);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.eg-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 700;
+    padding: 1.4rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.eg-brand-logo { width: 26px; height: 26px; }
+.eg-brand-logo-lg { width: 34px; height: 34px; }
+
+.eg-sidebar-nav {
+    flex: 1;
+    padding: 0.75rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    overflow-y: auto;
+}
+
+.eg-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 8px;
+    color: var(--eg-slate-400);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.eg-nav-link i { font-size: 1rem; width: 1.1rem; text-align: center; }
+
+.eg-nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    text-decoration: none;
+}
+
+.eg-nav-link.active {
+    background-color: var(--eg-primary);
+    color: #fff;
+}
+
+.eg-sidebar-footer {
+    padding: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.eg-nav-logout:hover { background-color: rgba(185, 28, 28, 0.25); color: #fecaca; }
+
+.eg-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.eg-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border-bottom: 1px solid var(--eg-slate-200);
+    padding: 0.9rem 1.75rem;
+}
+
+.eg-topbar-title { font-size: 1.05rem; font-weight: 700; color: var(--eg-slate-900); }
+.eg-topbar-subtitle { font-size: 0.78rem; color: var(--eg-slate-500); letter-spacing: 0.03em; text-transform: uppercase; }
+
+.eg-topbar-user { display: flex; align-items: center; gap: 0.65rem; }
+
+.eg-topbar-avatar, .eg-topbar-avatar-placeholder {
+    width: 38px; height: 38px; border-radius: 50%; object-fit: cover;
+}
+
+.eg-topbar-avatar-placeholder {
+    background-color: var(--eg-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.eg-topbar-user-name { font-size: 0.85rem; font-weight: 600; color: var(--eg-slate-900); line-height: 1.1; }
+.eg-topbar-user-role { font-size: 0.72rem; color: var(--eg-slate-500); }
+
+.eg-content { padding: 1.75rem; flex: 1; }
+
+/* ==========================================================================
+   Cards, badges, and shared components
+   ========================================================================== */
+
+.eg-card {
+    border: 1px solid var(--eg-slate-200);
+    border-radius: var(--eg-radius);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.eg-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--eg-slate-900);
+    margin-bottom: 1rem;
+}
+
+.eg-card-header i { color: var(--eg-primary); }
+
+.eg-btn-primary {
+    background-color: var(--eg-primary);
+    border-color: var(--eg-primary);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 0.55rem 1rem;
+}
+
+.eg-btn-primary:hover:not(:disabled) {
+    background-color: var(--eg-primary-dark);
+    border-color: var(--eg-primary-dark);
+    color: #fff;
+}
+
+.eg-btn-primary:disabled { opacity: 0.55; }
+
+.eg-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-weight: 600;
+    padding: 0.32rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+}
+
+.eg-badge-success { background-color: var(--eg-success-bg); color: var(--eg-success); }
+.eg-badge-warning { background-color: var(--eg-warning-bg); color: var(--eg-warning); }
+.eg-badge-danger  { background-color: var(--eg-danger-bg);  color: var(--eg-danger); }
+.eg-badge-neutral { background-color: var(--eg-neutral-bg); color: var(--eg-slate-700); }
+
+.eg-info-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--eg-slate-500);
+    margin-bottom: 0.15rem;
+}
+
+.eg-info-value { font-size: 0.95rem; font-weight: 600; color: var(--eg-slate-900); }
+
+/* --- Profile card --- */
+
+.eg-profile-photo-lg, .eg-profile-photo-lg-placeholder {
+    width: 96px; height: 96px; border-radius: 50%; object-fit: cover;
+    border: 3px solid var(--eg-primary-light);
+}
+
+.eg-profile-photo-lg-placeholder {
+    background: linear-gradient(135deg, var(--eg-primary), var(--eg-primary-dark));
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.eg-profile-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--eg-slate-100);
+    font-size: 0.88rem;
+}
+
+.eg-profile-row:last-child { border-bottom: none; }
+.eg-profile-row-label { color: var(--eg-slate-500); }
+.eg-profile-row-value { color: var(--eg-slate-900); font-weight: 600; text-align: right; }
+
+/* --- Status list rows (monitoring status / system health) --- */
+
+.eg-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--eg-slate-100);
+    font-size: 0.88rem;
+}
+
+.eg-status-row:last-child { border-bottom: none; }
+
+.eg-status-row-label {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--eg-slate-700);
+}
+
+.eg-status-row-label i { color: var(--eg-slate-400); width: 1.1rem; text-align: center; }
+
+.eg-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+
+.eg-dot-success { background-color: var(--eg-success); }
+.eg-dot-warning { background-color: var(--eg-warning); }
+.eg-dot-danger  { background-color: var(--eg-danger); }
+.eg-dot-neutral { background-color: var(--eg-slate-400); }
+
+/* --- Upcoming exam card --- */
+
+.eg-exam-card {
+    background: linear-gradient(135deg, var(--eg-primary-dark), var(--eg-primary));
+    border-radius: var(--eg-radius);
+    color: #fff;
+    padding: 1.5rem 1.6rem;
+}
+
+.eg-exam-card .eg-info-label { color: #bfdbfe; }
+.eg-exam-card .eg-info-value { color: #fff; }
+
+.eg-exam-meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1.1rem 0 1.4rem;
+}
+
+/* --- Activity timeline --- */
+
+.eg-timeline { list-style: none; margin: 0; padding: 0; }
+
+.eg-timeline-item {
+    display: flex;
+    gap: 0.85rem;
+    padding-bottom: 1rem;
+    position: relative;
+}
+
+.eg-timeline-item:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 13px;
+    top: 26px;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--eg-slate-200);
+}
+
+.eg-timeline-icon {
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    z-index: 1;
+}
+
+.eg-timeline-body { flex: 1; }
+.eg-timeline-desc { font-size: 0.87rem; font-weight: 600; color: var(--eg-slate-900); }
+.eg-timeline-time { font-size: 0.75rem; color: var(--eg-slate-500); }
+
+.eg-empty-state {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--eg-slate-500);
+    font-size: 0.9rem;
+}
+
+/* --- Data tables (violations / reports) --- */
+
+.eg-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+}
+
+.eg-table th {
+    text-align: left;
+    padding: 0.65rem 0.85rem;
+    background-color: var(--eg-slate-100);
+    color: var(--eg-slate-600);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--eg-slate-200);
+}
+
+.eg-table td {
+    padding: 0.7rem 0.85rem;
+    border-bottom: 1px solid var(--eg-slate-100);
+    color: var(--eg-slate-800);
+    vertical-align: middle;
+}
+
+.eg-table tr:last-child td { border-bottom: none; }
+
+/* --- Camera capture frame (Module 2/3, restyled) --- */
+
+.eg-camera-frame {
+    width: 100%;
+    max-width: 480px;
+    aspect-ratio: 4 / 3;
+    margin: 0 auto;
+    background-color: var(--eg-slate-900);
+    border-radius: var(--eg-radius);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.eg-camera-media { width: 100%; height: 100%; object-fit: cover; }
+
+/* --- Live monitoring page --- */
+
+.eg-monitor-frame {
+    width: 100%;
+    max-width: 420px;
+    aspect-ratio: 4 / 3;
+    margin: 0 auto;
+    background-color: var(--eg-slate-900);
+    border-radius: var(--eg-radius);
+    overflow: hidden;
+    position: relative;
+}
+
+.eg-monitor-frame img { width: 100%; height: 100%; object-fit: cover; }
+
+.eg-score-ring {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border: 10px solid var(--eg-slate-200);
+    margin: 0 auto;
+}
+
+.eg-score-ring-value { font-size: 2rem; font-weight: 700; color: var(--eg-slate-900); line-height: 1; }
+.eg-score-ring-label { font-size: 0.7rem; text-transform: uppercase; color: var(--eg-slate-500); letter-spacing: 0.04em; }
+
+/* --- Responsive --- */
+
+@media (max-width: 900px) {
+    .eg-app-shell { flex-direction: column; }
+    .eg-sidebar { width: 100%; height: auto; position: relative; flex-direction: row; overflow-x: auto; }
+    .eg-sidebar-brand { border-bottom: none; padding: 0.9rem 1rem; }
+    .eg-sidebar-nav { flex-direction: row; overflow-x: auto; padding: 0.5rem; }
+    .eg-sidebar-footer { display: none; }
+    .eg-nav-link { white-space: nowrap; }
+    .eg-exam-meta { grid-template-columns: repeat(2, 1fr); }
+    .eg-content { padding: 1.1rem; }
+}
+
+/* ==========================================================================
+   Module 5 — Pre-assessment wizard
+   ========================================================================== */
+
+.eg-wizard-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+}
+
+.eg-wizard-step {
+    padding: 0.35rem 0.8rem;
+    border-radius: 20px;
+    background-color: var(--eg-slate-100);
+    color: var(--eg-slate-500);
+    font-weight: 600;
+}
+
+.eg-wizard-step.active {
+    background-color: var(--eg-primary);
+    color: #fff;
+}
+
+.eg-readiness-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--eg-slate-100);
+    font-size: 0.9rem;
+}
+
+.eg-readiness-row:last-child { border-bottom: none; }
+
+.eg-policy-scroll {
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--eg-slate-700);
+    line-height: 1.65;
+}
+
+.eg-policy-scroll h6 {
+    margin-top: 1.1rem;
+    margin-bottom: 0.4rem;
+    color: var(--eg-slate-900);
+}
+
+.eg-policy-scroll h6:first-child { margin-top: 0; }
+
+.eg-declare-item {
+    display: flex;
+    gap: 0.65rem;
+    align-items: flex-start;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--eg-slate-100);
+}
+
+.eg-declare-item:last-child { border-bottom: none; }
+.eg-declare-item input { margin-top: 0.25rem; }
+.eg-declare-item label { font-size: 0.88rem; color: var(--eg-slate-700); cursor: pointer; }
+
+/* ==========================================================================
+   Module 5 — Assessment-taking engine
+   ========================================================================== */
+
+.eg-timer {
+    font-variant-numeric: tabular-nums;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--eg-slate-900);
+}
+
+.eg-timer.eg-timer-warning { color: var(--eg-warning); }
+.eg-timer.eg-timer-danger { color: var(--eg-danger); animation: eg-pulse 1s infinite; }
+
+@keyframes eg-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.eg-exam-topstrip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: #fff;
+    border: 1px solid var(--eg-slate-200);
+    border-radius: var(--eg-radius);
+    padding: 0.9rem 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.eg-exam-topstrip-item {
+    text-align: center;
+    min-width: 90px;
+}
+
+.eg-question-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.eg-palette-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+}
+
+.eg-palette-btn {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    border: 1px solid var(--eg-slate-200);
+    background: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--eg-slate-700);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.eg-palette-btn.eg-palette-answered { background-color: var(--eg-success); border-color: var(--eg-success); color: #fff; }
+.eg-palette-btn.eg-palette-review { background-color: var(--eg-warning); border-color: var(--eg-warning); color: #fff; }
+.eg-palette-btn.eg-palette-current { outline: 3px solid var(--eg-primary); outline-offset: 1px; }
+.eg-palette-btn.eg-palette-skipped { background-color: var(--eg-slate-100); }
+
+.eg-palette-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--eg-slate-500);
+    margin-top: 0.75rem;
+}
+
+.eg-palette-legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
+
+.eg-legend-swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+.eg-option-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--eg-slate-200);
+    border-radius: 8px;
+    margin-bottom: 0.6rem;
+    cursor: pointer;
+}
+
+.eg-option-row:hover { border-color: var(--eg-primary); background-color: var(--eg-primary-light); }
+.eg-option-row.eg-option-selected { border-color: var(--eg-primary); background-color: var(--eg-primary-light); }
+
+.eg-result-hero {
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.eg-result-score {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--eg-slate-900);
+}
+
+/* --- Module 6: proctoring panel, progress bar, paused overlay --- */
+
+.eg-proctor-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+    text-align: left;
+}
+
+.eg-proctor-meta > div {
+    background-color: var(--eg-slate-50);
+    border-radius: 8px;
+    padding: 0.5rem 0.65rem;
+}
+
+.eg-proctor-meta .eg-info-label { margin-bottom: 0.1rem; }
+.eg-proctor-meta .eg-info-value { font-size: 0.85rem; }
+
+.eg-progress-track {
+    height: 8px;
+    border-radius: 4px;
+    background-color: var(--eg-slate-100);
+    overflow: hidden;
+}
+
+.eg-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--eg-primary), var(--eg-primary-dark));
+    transition: width 0.35s ease;
+}
+
+.eg-paused-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.75);
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.eg-paused-box {
+    background: #fff;
+    border-radius: var(--eg-radius);
+    padding: 2.5rem 3rem;
+    text-align: center;
+    max-width: 420px;
+}
+
+.eg-paused-box i { font-size: 2.4rem; color: var(--eg-warning); }
+.eg-paused-box h4 { margin-top: 0.75rem; }
+.eg-paused-box p { color: var(--eg-slate-500); margin-bottom: 0; }
+
+/* --- Module 6: candidate dashboard performance overview --- */
+
+.eg-stat-tile {
+    background-color: var(--eg-slate-50);
+    border-radius: 10px;
+    padding: 1rem 0.75rem;
+    text-align: center;
+}
+
+.eg-stat-tile-num { font-size: 1.5rem; font-weight: 800; color: var(--eg-primary); }
+.eg-stat-tile-label { font-size: 0.72rem; color: var(--eg-slate-500); text-transform: uppercase; letter-spacing: 0.03em; margin-top: 0.15rem; }
+
+.eg-trend-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.4rem;
+    height: 70px;
+    background-color: var(--eg-slate-50);
+    border-radius: 8px;
+    padding: 0.5rem 0.6rem;
+}
+
+.eg-trend-bar {
+    flex: 1;
+    min-height: 4px;
+    background: linear-gradient(180deg, var(--eg-primary), var(--eg-primary-dark));
+    border-radius: 3px 3px 0 0;
+}
+
+/* --- Module 7: assessment cards, sticky proctoring panel, 5-state palette, toasts --- */
+
+.eg-assessment-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.eg-assessment-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1); }
+
+.eg-assessment-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--eg-slate-600);
+}
+
+.eg-assessment-meta i { color: var(--eg-primary); width: 1.1rem; text-align: center; margin-right: 0.4rem; }
+
+.eg-sticky-panel {
+    position: sticky;
+    top: 1rem;
+}
+
+.eg-palette-btn.eg-palette-not-visited { background-color: #fff; border-color: var(--eg-slate-200); color: var(--eg-slate-500); }
+.eg-palette-btn.eg-palette-visited { background-color: var(--eg-slate-400); border-color: var(--eg-slate-400); color: #fff; }
+.eg-palette-btn.eg-palette-answered-marked {
+    background: linear-gradient(135deg, var(--eg-success) 50%, var(--eg-warning) 50%);
+    border-color: var(--eg-primary);
+    color: #fff;
+}
+
+.eg-toast-stack {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1080;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-width: 340px;
+}
+
+.eg-toast {
+    background: #fff;
+    border-left: 4px solid var(--eg-warning);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--eg-slate-800);
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.eg-toast.eg-toast-show { opacity: 1; transform: translateX(0); }
+.eg-toast-critical { border-left-color: var(--eg-danger); }
+.eg-toast i { font-size: 1.1rem; flex-shrink: 0; }
+.eg-toast-warning i { color: var(--eg-warning); }
+.eg-toast-critical i { color: var(--eg-danger); }

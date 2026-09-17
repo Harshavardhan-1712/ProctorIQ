@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - {{ platform_name }}{% endblock %}
+
+{% block content %}
+
+<div class="row g-4">
+
+    <!-- Candidate Profile -->
+    <div class="col-lg-4">
+        <div class="card eg-card h-100">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-person-badge"></i> Candidate Profile</div>
+
+                <div class="text-center mb-3">
+                    {% if user.photo_path %}
+                        <img src="{{ url_for('static', filename=user.photo_path) }}"
+                             alt="{{ user.full_name }}" class="eg-profile-photo-lg mb-2">
+                    {% else %}
+                        <div class="eg-profile-photo-lg-placeholder mb-2">{{ user.full_name[0] | upper }}</div>
+                    {% endif %}
+                    <div class="fw-bold">{{ user.full_name }}</div>
+                    <div class="text-muted small">{{ user.email }}</div>
+                </div>
+
+                <div class="eg-profile-row">
+                    <span class="eg-profile-row-label">Candidate ID</span>
+                    <span class="eg-profile-row-value">EG-{{ '%04d' % user.id }}</span>
+                </div>
+                <div class="eg-profile-row">
+                    <span class="eg-profile-row-label">Registration Time</span>
+                    <span class="eg-profile-row-value">{{ user.created_at | local_datetime }}</span>
+                </div>
+                <div class="eg-profile-row">
+                    <span class="eg-profile-row-label">Identity Status</span>
+                    <span class="eg-profile-row-value">
+                        {% if user.photo_path %}
+                            <span class="eg-badge eg-badge-success"><i class="bi bi-patch-check-fill"></i> Verified</span>
+                        {% else %}
+                            <span class="eg-badge eg-badge-warning"><i class="bi bi-exclamation-circle"></i> Pending</span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <a href="{{ url_for('camera.capture_photo') }}" class="btn btn-outline-primary btn-sm w-100 mt-3">
+                    {% if user.photo_path %}Retake Verification Photo{% else %}Complete Identity Verification{% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exam Monitoring Status + System Health -->
+    <div class="col-lg-4">
+        <div class="card eg-card mb-4">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-camera-video"></i> Exam Monitoring Status</div>
+
+                <div class="eg-status-row">
+                    <span class="eg-status-row-label"><i class="bi bi-camera"></i> Camera Status</span>
+                    {% if system_health['Camera Availability'] %}
+                        <span class="eg-badge eg-badge-success"><span class="eg-dot eg-dot-success"></span> Available</span>
+                    {% else %}
+                        <span class="eg-badge eg-badge-danger"><span class="eg-dot eg-dot-danger"></span> Unavailable</span>
+                    {% endif %}
+                </div>
+                <div class="eg-status-row">
+                    <span class="eg-status-row-label"><i class="bi bi-person-bounding-box"></i> Face Detection</span>
+                    {% if user.photo_path %}
+                        <span class="eg-badge eg-badge-success"><span class="eg-dot eg-dot-success"></span> Verified</span>
+                    {% else %}
+                        <span class="eg-badge eg-badge-neutral"><span class="eg-dot eg-dot-neutral"></span> Not Verified</span>
+                    {% endif %}
+                </div>
+                <div class="eg-status-row">
+                    <span class="eg-status-row-label"><i class="bi bi-window"></i> Browser Monitoring</span>
+                    {% if monitoring_active %}
+                        <span class="eg-badge eg-badge-success"><span class="eg-dot eg-dot-success"></span> Active</span>
+                    {% else %}
+                        <span class="eg-badge eg-badge-neutral"><span class="eg-dot eg-dot-neutral"></span> Not Active</span>
+                    {% endif %}
+                </div>
+                <div class="eg-status-row">
+                    <span class="eg-status-row-label"><i class="bi bi-broadcast"></i> Session Status</span>
+                    <span class="eg-badge eg-badge-success"><span class="eg-dot eg-dot-success"></span> Active</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-heart-pulse"></i> System Health</div>
+
+                {% for label, healthy in system_health.items() %}
+                <div class="eg-status-row">
+                    <span class="eg-status-row-label"><i class="bi bi-hdd-network"></i> {{ label }}</span>
+                    {% if healthy %}
+                        <span class="eg-badge eg-badge-success"><span class="eg-dot eg-dot-success"></span> Online</span>
+                    {% else %}
+                        <span class="eg-badge eg-badge-danger"><span class="eg-dot eg-dot-danger"></span> Offline</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Exam + Recent Activity -->
+    <div class="col-lg-4">
+        <div class="eg-exam-card mb-4">
+            {% if next_assessment %}
+            <div class="eg-info-label">Available Assessment</div>
+            <div class="fs-5 fw-bold mb-1">{{ next_assessment.name }}</div>
+            <div class="small" style="color:#bfdbfe;">{{ exam_status }}</div>
+
+            <div class="eg-exam-meta">
+                <div>
+                    <div class="eg-info-label">Duration</div>
+                    <div class="eg-info-value">{{ next_assessment.duration_minutes }} minutes</div>
+                </div>
+                <div>
+                    <div class="eg-info-label">Questions</div>
+                    <div class="eg-info-value">{{ next_assessment.total_questions }}</div>
+                </div>
+                <div>
+                    <div class="eg-info-label">Passing Score</div>
+                    <div class="eg-info-value">{{ next_assessment.passing_score_percent }}%</div>
+                </div>
+            </div>
+
+            <a href="{{ url_for('preassessment.readiness', assessment_id=next_assessment.id) }}" class="btn btn-light w-100 fw-bold">
+                <i class="bi bi-shield-lock"></i> Launch Secure Assessment
+            </a>
+            {% else %}
+            <div class="eg-info-label">Upcoming Assessment</div>
+            <div class="fs-5 fw-bold mb-1">No assessment currently available</div>
+            <div class="small" style="color:#bfdbfe;">Check back once one is assigned to you.</div>
+            {% endif %}
+        </div>
+
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-clock-history"></i> Recent Activity</div>
+
+                {% if recent_events %}
+                <ul class="eg-timeline">
+                    {% for event in recent_events %}
+                    <li class="eg-timeline-item">
+                        <div class="eg-timeline-icon
+                            {% if event.severity == 'critical' %}eg-badge-danger
+                            {% elif event.severity == 'warning' %}eg-badge-warning
+                            {% else %}eg-badge-success{% endif %}">
+                            <i class="bi
+                                {% if event.severity == 'critical' %}bi-exclamation-triangle-fill
+                                {% elif event.severity == 'warning' %}bi-exclamation-circle
+                                {% else %}bi-check-lg{% endif %}"></i>
+                        </div>
+                        <div class="eg-timeline-body">
+                            <div class="eg-timeline-desc">{{ event.description }}</div>
+                            <div class="eg-timeline-time">{{ event.timestamp | local_datetime }}</div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="eg-empty-state">No activity recorded yet.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Overview (Part 7) -->
+<div class="row g-4 mt-1">
+    <div class="col-xl-8">
+        <div class="card eg-card mb-4">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-bar-chart-line"></i> Performance Overview</div>
+                <div class="row g-3">
+                    <div class="col-sm-3 col-6">
+                        <div class="eg-stat-tile">
+                            <div class="eg-stat-tile-num">{{ stats.completed_count }}</div>
+                            <div class="eg-stat-tile-label">Completed</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-6">
+                        <div class="eg-stat-tile">
+                            <div class="eg-stat-tile-num">{{ stats.average_score }}%</div>
+                            <div class="eg-stat-tile-label">Avg. Score</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-6">
+                        <div class="eg-stat-tile">
+                            <div class="eg-stat-tile-num">{{ stats.average_integrity }}</div>
+                            <div class="eg-stat-tile-label">Avg. Integrity</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-6">
+                        <div class="eg-stat-tile">
+                            <div class="eg-stat-tile-num">{{ violations_count }}</div>
+                            <div class="eg-stat-tile-label">Violations</div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if stats.trend and stats.trend|length > 1 %}
+                <div class="mt-4">
+                    <div class="eg-info-label mb-2">Score Trend (most recent {{ stats.trend|length }} attempts)</div>
+                    <div class="eg-trend-bars">
+                        {% for pct in stats.trend %}
+                        <div class="eg-trend-bar" style="height: {{ pct }}%;" title="{{ pct }}%"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-collection"></i> Assessment History</div>
+                {% if stats.recent_results %}
+                <div class="table-responsive">
+                    <table class="eg-table">
+                        <thead><tr><th>Assessment</th><th>Score</th><th>Result</th><th>Submitted</th></tr></thead>
+                        <tbody>
+                            {% for r in stats.recent_results %}
+                            <tr>
+                                <td>{{ r.assessment.name }}</td>
+                                <td>{{ r.percentage }}%</td>
+                                <td>
+                                    {% if r.passed %}<span class="eg-badge eg-badge-success">Passed</span>
+                                    {% else %}<span class="eg-badge eg-badge-danger">Not Passed</span>{% endif %}
+                                </td>
+                                <td>{{ r.submitted_at | local_datetime }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="eg-empty-state">No completed assessments yet.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-lightning-charge"></i> Quick Actions</div>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('preassessment.list_assessments') }}" class="btn btn-outline-primary btn-sm text-start"><i class="bi bi-journal-check"></i> Browse Assessments</a>
+                    <a href="{{ url_for('camera.capture_photo') }}" class="btn btn-outline-primary btn-sm text-start"><i class="bi bi-camera"></i> Update Verification Photo</a>
+                    <a href="{{ url_for('monitoring.reports') }}" class="btn btn-outline-primary btn-sm text-start"><i class="bi bi-file-earmark-text"></i> View Full Report</a>
+                    <a href="{{ url_for('monitoring.analytics') }}" class="btn btn-outline-primary btn-sm text-start"><i class="bi bi-graph-up"></i> View Analytics</a>
+                    <button class="btn btn-outline-secondary btn-sm text-start" disabled><i class="bi bi-award"></i> Certificates <span class="text-muted">(coming soon)</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

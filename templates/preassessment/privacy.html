@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="eg-wizard-steps mb-4">
+    <span class="eg-wizard-step">1. Readiness</span>
+    <span class="eg-wizard-step">2. Details</span>
+    <span class="eg-wizard-step">3. Terms</span>
+    <span class="eg-wizard-step active">4. Privacy</span>
+    <span class="eg-wizard-step">5. Integrity Policy</span>
+    <span class="eg-wizard-step">6. Declaration</span>
+    <span class="eg-wizard-step">7. Confirm</span>
+</div>
+
+<div class="card eg-card">
+    <div class="card-body p-4">
+        <div class="eg-card-header"><i class="bi bi-shield-lock"></i> Privacy Policy</div>
+
+        <div class="eg-policy-scroll">
+            <h6>What We Collect</h6>
+            <p>During a monitored assessment, {{ platform_name }} records: your registered profile photo (captured
+            once, before any assessment), periodic face-presence status (not raw video), browser interaction
+            events (tab switches, focus changes, fullscreen exits, copy/paste, right-click), and your submitted
+            answers.</p>
+
+            <h6>What We Do NOT Store</h6>
+            <p>We do not record or store continuous webcam video. Monitoring works by evaluating live frames in
+            real time to detect status changes (face present / absent / multiple faces) — only that status, not
+            the underlying image, is written to the monitoring log.</p>
+
+            <h6>How Your Data Is Used</h6>
+            <p>Monitoring events and your Integrity Score are used solely to assess the integrity of this specific
+            attempt and to generate your result and any associated report. They are not used for any purpose
+            outside the assessment and audit process.</p>
+
+            <h6>Storage & Retention</h6>
+            <p>Monitoring logs are stored in the platform's database, associated with your candidate account and
+            this assessment attempt, for audit purposes.</p>
+
+            <h6>Your Rights</h6>
+            <p>You may request access to the monitoring events and integrity data associated with your account
+            through your institution's designated contact.</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('preassessment.privacy_continue', assessment_id=assessment.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn eg-btn-primary w-100 mt-4">I Understand — Continue to Integrity Policy</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

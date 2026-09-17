@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Settings - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-gear"></i> Account Settings</div>
+
+                <div class="eg-profile-row">
+                    <span class="eg-profile-row-label">Full Name</span>
+                    <span class="eg-profile-row-value">{{ user.full_name }}</span>
+                </div>
+                <div class="eg-profile-row">
+                    <span class="eg-profile-row-label">Email Address</span>
+                    <span class="eg-profile-row-value">{{ user.email }}</span>
+                </div>
+                <div class="eg-profile-row">
+                    <span class="eg-profile-row-label">Password</span>
+                    <span class="eg-profile-row-value">••••••••</span>
+                </div>
+                <div class="eg-profile-row">
+                    <span class="eg-profile-row-label">Camera Device Index</span>
+                    <span class="eg-profile-row-value">Configured by administrator</span>
+                </div>
+
+                <div class="eg-empty-state mt-3">
+                    <i class="bi bi-tools d-block mb-2" style="font-size:1.4rem;"></i>
+                    Profile editing, password changes, and notification preferences
+                    will be available in a future release.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

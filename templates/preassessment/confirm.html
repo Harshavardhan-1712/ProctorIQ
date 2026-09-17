@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Final Confirmation - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="eg-wizard-steps mb-4">
+    <span class="eg-wizard-step">1. Readiness</span>
+    <span class="eg-wizard-step">2. Details</span>
+    <span class="eg-wizard-step">3. Terms</span>
+    <span class="eg-wizard-step">4. Privacy</span>
+    <span class="eg-wizard-step">5. Integrity Policy</span>
+    <span class="eg-wizard-step">6. Declaration</span>
+    <span class="eg-wizard-step active">7. Confirm</span>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card eg-card">
+            <div class="card-body p-4 text-center">
+                <i class="bi bi-exclamation-diamond" style="font-size:2.2rem;color:var(--eg-warning);"></i>
+                <h4 class="mt-3 mb-1">Ready to begin {{ assessment.name }}?</h4>
+                <p class="text-muted">Please confirm you understand the following before proceeding.</p>
+
+                <ul class="text-start eg-policy-scroll" style="max-height:none;">
+                    <li>The <strong>{{ assessment.duration_minutes }}-minute timer starts immediately</strong> once you click Start Assessment.</li>
+                    <li><strong>Monitoring begins immediately</strong> — your webcam and browser activity are recorded from this point forward.</li>
+                    <li>The assessment <strong>cannot be paused</strong> once started.</li>
+                    <li>All <strong>violations are recorded</strong> and affect your Integrity Score.</li>
+                </ul>
+
+                <div class="d-flex gap-2 mt-4">
+                    <a href="{{ url_for('preassessment.confirm_cancel', assessment_id=assessment.id) }}" class="btn btn-outline-secondary w-50">
+                        Cancel
+                    </a>
+                    <form method="POST" action="{{ url_for('preassessment.confirm_start', assessment_id=assessment.id) }}" class="w-50">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn eg-btn-primary w-100">
+                            <i class="bi bi-shield-lock"></i> Start Assessment
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Evidence &amp; Incidents - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('invigilator.session_detail', session_id=assessment_session.id) }}" class="small text-muted"><i class="bi bi-arrow-left"></i> Back to Session</a>
+<h4 class="mt-1 mb-3">Evidence &amp; Incidents — {{ assessment_session.user.full_name }}</h4>
+<p class="small text-muted">Examiner-only. Candidates cannot access this page or its data.</p>
+
+<div class="card eg-card mb-3">
+    <div class="card-body p-4">
+        <div class="eg-card-header"><i class="bi bi-exclamation-octagon"></i> Incidents</div>
+        {% if incidents %}
+        <div class="table-responsive">
+            <table class="eg-table">
+                <thead><tr><th>Time</th><th>Type</th><th>Severity</th><th>Description</th><th>Status</th><th>Evidence</th></tr></thead>
+                <tbody>
+                    {% for i in incidents %}
+                    <tr>
+                        <td>{{ i.timestamp | local_datetime }}</td>
+                        <td><code>{{ i.event_type }}</code></td>
+                        <td>{% if i.severity == 'critical' %}<span class="eg-badge eg-badge-danger">Critical</span>{% else %}<span class="eg-badge eg-badge-warning">Warning</span>{% endif %}</td>
+                        <td>{{ i.description }}</td>
+                        <td><span class="eg-badge eg-badge-neutral">{{ i.examiner_status }}</span></td>
+                        <td>{{ 'Yes' if i.evidence_id else 'None' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="eg-empty-state">No incidents recorded for this session.</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card eg-card">
+    <div class="card-body p-4">
+        <div class="eg-card-header"><i class="bi bi-camera"></i> Stored Evidence ({{ evidence_list|length }})</div>
+        {% if evidence_list %}
+        <div class="row g-3">
+            {% for e in evidence_list %}
+            <div class="col-md-4">
+                <div class="border rounded p-2">
+                    <img src="data:{{ e.mime_type }};base64,{{ e.image_data }}" class="img-fluid rounded mb-2" alt="Evidence screenshot">
+                    <div class="small text-muted"><code>{{ e.event_type }}</code> &middot; {{ e.timestamp | local_datetime }}</div>
+                    <div class="small">Hash: <code>{{ e.sha256_hash[:16] }}...</code></div>
+                    <div class="small">
+                        Integrity check:
+                        {% if integrity_ok.get(e.id) %}<span class="eg-badge eg-badge-success">OK</span>
+                        {% else %}<span class="eg-badge eg-badge-danger">MISMATCH</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="eg-empty-state">No evidence captured for this session.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}{{ candidate.full_name }} - Session Review - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+    <div>
+        <a href="{{ url_for('invigilator.dashboard') }}" class="small text-muted"><i class="bi bi-arrow-left"></i> Back to Live Candidates</a>
+        <h4 class="mt-1 mb-0">{{ candidate.full_name }}</h4>
+        <p class="text-muted small mb-0">{{ candidate.email }} &middot; {{ assessment_session.assessment.name }}</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('invigilator.export_csv', session_id=assessment_session.id) }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-filetype-csv"></i> Export CSV</a>
+        <a href="{{ url_for('invigilator.export_json', session_id=assessment_session.id) }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-filetype-json"></i> Export JSON</a>
+        <a href="{{ url_for('insights.session_report', session_id=assessment_session.id) }}" class="btn eg-btn-primary btn-sm"><i class="bi bi-robot"></i> AI Integrity Report</a>
+        <a href="{{ url_for('insights.session_evidence', session_id=assessment_session.id) }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-shield-lock"></i> Evidence</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card eg-card mb-3">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-person-badge"></i> Candidate Summary</div>
+                <div class="eg-status-row"><span class="eg-status-row-label">Status</span>
+                    <span class="eg-badge {{ 'eg-badge-warning' if assessment_session.status == 'paused' else 'eg-badge-success' if assessment_session.status == 'in_progress' else 'eg-badge-neutral' }}">{{ assessment_session.status | replace('_', ' ') | title }}</span>
+                </div>
+                <div class="eg-status-row"><span class="eg-status-row-label">Progress</span>
+                    <span class="eg-info-value">{{ assessment_session.current_question_index + 1 }} / {{ assessment_session.assessment.total_questions }}</span>
+                </div>
+                <div class="eg-status-row"><span class="eg-status-row-label">Integrity Score</span>
+                    <span class="eg-info-value">{{ candidate.integrity_score }} / 100</span>
+                </div>
+                <div class="eg-status-row"><span class="eg-status-row-label">Risk Level</span>
+                    <span class="eg-badge {{ 'eg-badge-success' if risk_label == 'Low' else 'eg-badge-warning' if risk_label == 'Medium' else 'eg-badge-danger' }}">{{ risk_label }}</span>
+                </div>
+                <div class="eg-status-row"><span class="eg-status-row-label">Started</span>
+                    <span class="eg-info-value">{{ assessment_session.started_at | local_datetime }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card eg-card mb-3">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-sliders"></i> Session Controls</div>
+
+                {% if assessment_session.status == 'in_progress' %}
+                <form method="POST" action="{{ url_for('invigilator.pause', session_id=assessment_session.id) }}" class="mb-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="text" name="note" class="form-control form-control-sm mb-2" placeholder="Reason (optional)">
+                    <button type="submit" class="btn btn-outline-warning btn-sm w-100">Pause Session</button>
+                </form>
+                {% elif assessment_session.status == 'paused' %}
+                <form method="POST" action="{{ url_for('invigilator.resume', session_id=assessment_session.id) }}" class="mb-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-outline-success btn-sm w-100">Resume Session</button>
+                </form>
+                {% endif %}
+
+                {% if assessment_session.status in ('in_progress', 'paused') %}
+                <form method="POST" action="{{ url_for('invigilator.terminate', session_id=assessment_session.id) }}"
+                      onsubmit="return confirm('Terminate this candidate\'s assessment now? This cannot be undone.');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="text" name="note" class="form-control form-control-sm mb-2" placeholder="Termination reason (optional)">
+                    <button type="submit" class="btn btn-outline-danger btn-sm w-100">Terminate Session</button>
+                </form>
+                {% else %}
+                <div class="text-muted small">This session has ended — no further controls available.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if violation_counts %}
+        <div class="card eg-card mb-3">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-bar-chart"></i> Violation Breakdown</div>
+                {% for etype, count in violation_counts.items() %}
+                <div class="eg-status-row">
+                    <span class="eg-status-row-label"><code>{{ etype }}</code></span>
+                    <span class="eg-badge eg-badge-warning">{{ count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if score_result %}
+        <div class="card eg-card mb-3">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-calculator"></i> Milestone 3 Weighted Score</div>
+                <div class="eg-status-row"><span class="eg-status-row-label">Base Score</span><span class="eg-info-value">{{ score_result.base_score }}</span></div>
+                <div class="eg-status-row"><span class="eg-status-row-label">Total Penalty</span><span class="eg-info-value">-{{ score_result.total_penalty }}</span></div>
+                <div class="eg-status-row"><span class="eg-status-row-label">Integrity Score</span><span class="eg-info-value">{{ score_result.integrity_score }} / 100</span></div>
+                <div class="eg-status-row"><span class="eg-status-row-label">Risk Level</span>
+                    <span class="eg-badge {{ 'eg-badge-success' if score_result.risk_level == 'LOW' else 'eg-badge-warning' if score_result.risk_level == 'MEDIUM' else 'eg-badge-danger' }}">{{ score_result.risk_level }}</span>
+                </div>
+                <div class="eg-status-row"><span class="eg-status-row-label">Face Presence</span>
+                    <span class="eg-info-value">{{ score_result.face_presence_percent if score_result.face_presence_percent is not none else 'N/A' }}{{ '%' if score_result.face_presence_percent is not none }}</span>
+                </div>
+                {% if score_result.penalties %}
+                <hr class="my-2">
+                {% for key, val in score_result.penalties.items() %}
+                <div class="eg-status-row"><span class="eg-status-row-label small">{{ key | replace('_', ' ') | title }}</span><span class="small">-{{ val }}</span></div>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if alerts %}
+        <div class="card eg-card mb-3">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-bell"></i> Alerts ({{ alerts|length }})</div>
+                {% for a in alerts %}
+                <div class="eg-status-row">
+                    <span class="eg-status-row-label small">{{ a.description }}</span>
+                    <span class="eg-badge {{ 'eg-badge-danger' if a.severity == 'critical' else 'eg-badge-warning' }}">{{ a.status }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-clock-history"></i> Session Timeline</div>
+                {% if events %}
+                <div class="table-responsive">
+                    <table class="eg-table">
+                        <thead><tr><th>Time</th><th>Type</th><th>Severity</th><th>Description</th></tr></thead>
+                        <tbody>
+                            {% for e in events %}
+                            <tr>
+                                <td>{{ e.timestamp | local_datetime }}</td>
+                                <td><code>{{ e.event_type }}</code></td>
+                                <td>
+                                    {% if e.severity == 'critical' %}<span class="eg-badge eg-badge-danger">Critical</span>
+                                    {% elif e.severity == 'warning' %}<span class="eg-badge eg-badge-warning">Warning</span>
+                                    {% else %}<span class="eg-badge eg-badge-neutral">Info</span>{% endif %}
+                                </td>
+                                <td>{{ e.description }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="eg-empty-state">No events recorded yet for this session.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

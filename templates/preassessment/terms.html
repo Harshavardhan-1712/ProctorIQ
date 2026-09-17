@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Terms & Conditions - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="eg-wizard-steps mb-4">
+    <span class="eg-wizard-step">1. Readiness</span>
+    <span class="eg-wizard-step">2. Details</span>
+    <span class="eg-wizard-step active">3. Terms</span>
+    <span class="eg-wizard-step">4. Privacy</span>
+    <span class="eg-wizard-step">5. Integrity Policy</span>
+    <span class="eg-wizard-step">6. Declaration</span>
+    <span class="eg-wizard-step">7. Confirm</span>
+</div>
+
+<div class="card eg-card">
+    <div class="card-body p-4">
+        <div class="eg-card-header"><i class="bi bi-file-earmark-text"></i> Terms &amp; Conditions</div>
+
+        <div class="eg-policy-scroll">
+            <h6>Identity Verification</h6>
+            <p>You must complete identity verification before starting this assessment. Your registered profile
+            photo will be used as your reference identity for the duration of the session.</p>
+
+            <h6>Continuous Webcam Monitoring</h6>
+            <p>Your webcam remains active for the full duration of the assessment. The system continuously checks
+            for the presence of exactly one face. Absence of a face, or the presence of more than one face, is
+            recorded as a monitoring event and may affect your Integrity Score.</p>
+
+            <h6>Browser Monitoring</h6>
+            <p>The assessment window monitors tab switches, loss of window focus, fullscreen exits, page refresh
+            attempts, copy/paste actions, right-click usage, and — on a best-effort basis — developer tools usage.
+            Each of these is logged as an event.</p>
+
+            <h6>Fullscreen Requirement</h6>
+            <p>The assessment is intended to be taken in fullscreen mode. Exiting fullscreen during the session is
+            recorded as a violation.</p>
+
+            <h6>Copy/Paste Restriction</h6>
+            <p>Copy and paste actions within the assessment window are discouraged and logged as monitoring events.</p>
+
+            <h6>Tab Switching Rules</h6>
+            <p>Switching to another browser tab or application window is recorded. Repeated tab switching beyond
+            the configured threshold contributes to a higher risk classification.</p>
+
+            <h6>Violation Policy</h6>
+            <p>Each violation type carries a point deduction from your Integrity Score, as described in the
+            Integrity Policy step. Your final Integrity Score is stored alongside your result and may be reviewed.</p>
+
+            <h6>Auto Submission Policy</h6>
+            <p>Your assessment is automatically submitted when the timer reaches zero, regardless of how many
+            questions have been answered. Unanswered questions are marked accordingly.</p>
+
+            <h6>Privacy Notice</h6>
+            <p>Monitoring data (webcam status transitions and browser events — not raw video) is stored securely
+            and used only for integrity verification and reporting purposes. See the Privacy Policy step for detail.</p>
+
+            <h6>Candidate Responsibilities</h6>
+            <p>You are responsible for ensuring a quiet, well-lit, single-occupant environment, a stable internet
+            connection, and a functioning camera before starting. Technical issues arising from your environment
+            remain your responsibility.</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('preassessment.terms_continue', assessment_id=assessment.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn eg-btn-primary w-100 mt-4">I Understand — Continue to Privacy Policy</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

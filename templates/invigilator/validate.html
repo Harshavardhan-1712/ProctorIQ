@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Scoring Validation - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<h4 class="mb-1">Scoring &amp; Analytics Validation</h4>
+<p class="text-muted small">
+    Automated consistency check (Milestone 3, Part 14): the weighted integrity-scoring
+    formula run against a labelled synthetic session corpus of known LOW/MEDIUM/HIGH-risk profiles.
+</p>
+
+<div class="card eg-card mb-3">
+    <div class="card-body p-4">
+        <div class="eg-card-header"><i class="bi bi-clipboard-check"></i> Overall Result</div>
+        <span class="eg-badge {{ 'eg-badge-success' if result.all_passed else 'eg-badge-danger' }}" style="font-size:1rem;">
+            {{ 'PASSED' if result.all_passed else 'FAILED' }}
+        </span>
+        <div class="small text-muted mt-2">
+            Monotonic ordering (LOW &gt;= MEDIUM &gt;= HIGH average score): {{ 'Yes' if result.monotonic_ordering else 'No' }}
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="eg-table">
+        <thead><tr><th>Profile</th><th>Synthetic Sessions</th><th>Expected Risk</th><th>Match Rate</th><th>Avg Score</th><th>Bounds OK (0-100)</th><th>Result</th></tr></thead>
+        <tbody>
+            {% for profile, r in result.profiles.items() %}
+            <tr>
+                <td>{{ profile }}</td>
+                <td>{{ r.sessions }}</td>
+                <td>{{ r.expected_risk_level }}</td>
+                <td>{{ (r.match_rate * 100) | round(1) }}%</td>
+                <td>{{ r.avg_integrity_score }}</td>
+                <td>{{ 'Yes' if r.score_bounds_ok else 'No' }}</td>
+                <td><span class="eg-badge {{ 'eg-badge-success' if r.passed else 'eg-badge-danger' }}">{{ 'PASS' if r.passed else 'FAIL' }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Candidate Declaration - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="eg-wizard-steps mb-4">
+    <span class="eg-wizard-step">1. Readiness</span>
+    <span class="eg-wizard-step">2. Details</span>
+    <span class="eg-wizard-step">3. Terms</span>
+    <span class="eg-wizard-step">4. Privacy</span>
+    <span class="eg-wizard-step">5. Integrity Policy</span>
+    <span class="eg-wizard-step active">6. Declaration</span>
+    <span class="eg-wizard-step">7. Confirm</span>
+</div>
+
+<div class="card eg-card">
+    <div class="card-body p-4">
+        <div class="eg-card-header"><i class="bi bi-pencil-square"></i> Candidate Declaration</div>
+        <p class="text-muted small mb-3">Please read and acknowledge each statement below.</p>
+
+        <form method="POST" action="{{ url_for('preassessment.declaration', assessment_id=assessment.id) }}" id="declarationForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="eg-declare-item">
+                <input type="checkbox" name="confirmed_candidate" id="confirmed_candidate" {{ 'checked' if values.get('confirmed_candidate') }}>
+                <label for="confirmed_candidate">I confirm I am the registered candidate.</label>
+            </div>
+            <div class="eg-declare-item">
+                <input type="checkbox" name="ai_monitoring_ack" id="ai_monitoring_ack" {{ 'checked' if values.get('ai_monitoring_ack') }}>
+                <label for="ai_monitoring_ack">I understand that AI monitoring is active.</label>
+            </div>
+            <div class="eg-declare-item">
+                <input type="checkbox" name="webcam_monitoring_ack" id="webcam_monitoring_ack" {{ 'checked' if values.get('webcam_monitoring_ack') }}>
+                <label for="webcam_monitoring_ack">I agree to continuous webcam monitoring.</label>
+            </div>
+            <div class="eg-declare-item">
+                <input type="checkbox" name="browser_monitoring_ack" id="browser_monitoring_ack" {{ 'checked' if values.get('browser_monitoring_ack') }}>
+                <label for="browser_monitoring_ack">I understand that browser activity will be monitored.</label>
+            </div>
+            <div class="eg-declare-item">
+                <input type="checkbox" name="integrity_score_ack" id="integrity_score_ack" {{ 'checked' if values.get('integrity_score_ack') }}>
+                <label for="integrity_score_ack">I understand that violations may reduce my Integrity Score.</label>
+            </div>
+            <div class="eg-declare-item">
+                <input type="checkbox" name="rules_ack" id="rules_ack" {{ 'checked' if values.get('rules_ack') }}>
+                <label for="rules_ack">I agree to follow all assessment rules.</label>
+            </div>
+            <div class="eg-declare-item">
+                <input type="checkbox" name="log_storage_consent" id="log_storage_consent" {{ 'checked' if values.get('log_storage_consent') }}>
+                <label for="log_storage_consent">I consent to secure storage of monitoring logs for audit purposes.</label>
+            </div>
+            <div class="eg-declare-item">
+                <input type="checkbox" name="terms_ack" id="terms_ack" {{ 'checked' if values.get('terms_ack') }}>
+                <label for="terms_ack"><strong>I have read and agree to the Terms &amp; Conditions.</strong></label>
+            </div>
+
+            <button type="submit" id="declareBtn" class="btn eg-btn-primary w-100 mt-4" disabled>
+                Submit Declaration &amp; Continue
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("declarationForm");
+    const btn = document.getElementById("declareBtn");
+    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+
+    function refresh() {
+        btn.disabled = ![...checkboxes].every((cb) => cb.checked);
+    }
+    checkboxes.forEach((cb) => cb.addEventListener("change", refresh));
+    refresh();
+});
+</script>
+{% endblock %}

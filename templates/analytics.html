@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Analytics - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-3 col-sm-6">
+        <div class="card eg-card">
+            <div class="card-body p-4 text-center">
+                <div class="eg-info-label">Integrity Score</div>
+                <div class="fs-2 fw-bold" id="statScore">—</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-6">
+        <div class="card eg-card">
+            <div class="card-body p-4 text-center">
+                <div class="eg-info-label">Warning Count</div>
+                <div class="fs-2 fw-bold" id="statWarnings">—</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-6">
+        <div class="card eg-card">
+            <div class="card-body p-4 text-center">
+                <div class="eg-info-label">Total Events</div>
+                <div class="fs-2 fw-bold" id="statTotal">—</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-6">
+        <div class="card eg-card">
+            <div class="card-body p-4 text-center">
+                <div class="eg-info-label">Event Types</div>
+                <div class="fs-2 fw-bold" id="statTypes">—</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-pie-chart"></i> Violation Distribution</div>
+                <canvas id="violationChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-bar-chart"></i> Monitoring Statistics</div>
+                <canvas id="statsChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12">
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-graph-up"></i> Timeline of Events</div>
+                <canvas id="timelineChart" height="110"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/chartjs/chart.umd.js') }}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    fetch("{{ url_for('monitoring.analytics_data') }}")
+        .then((res) => res.json())
+        .then((data) => {
+            document.getElementById("statScore").textContent = data.integrity_score;
+            document.getElementById("statWarnings").textContent = data.warning_count;
+            document.getElementById("statTypes").textContent = Object.keys(data.violation_distribution).length;
+
+            const totalEvents = Object.values(data.violation_distribution).reduce((a, b) => a + b, 0);
+            document.getElementById("statTotal").textContent = totalEvents;
+
+            const slateGrid = "#e2e8f0";
+            const palette = ["#1d4ed8", "#0ea5e9", "#b45309", "#b91c1c", "#15803d", "#64748b", "#7c3aed", "#0891b2"];
+
+            // --- Violation Distribution (doughnut) ---
+            const labels = Object.keys(data.violation_distribution);
+            const counts = Object.values(data.violation_distribution);
+
+            new Chart(document.getElementById("violationChart"), {
+                type: "doughnut",
+                data: {
+                    labels: labels,
+                    datasets: [{ data: counts, backgroundColor: palette }],
+                },
+                options: { plugins: { legend: { position: "bottom", labels: { boxWidth: 12 } } } },
+            });
+
+            // --- Monitoring Statistics (bar) ---
+            new Chart(document.getElementById("statsChart"), {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{ label: "Occurrences", data: counts, backgroundColor: "#1d4ed8" }],
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { color: slateGrid } }, x: { grid: { display: false } } },
+                },
+            });
+
+            // --- Timeline of Events (line, cumulative) ---
+            const timeline = data.timeline;
+            const timeLabels = timeline.map((e) => new Date(e.timestamp).toLocaleString());
+            let running = 0;
+            const cumulative = timeline.map(() => ++running);
+
+            new Chart(document.getElementById("timelineChart"), {
+                type: "line",
+                data: {
+                    labels: timeLabels,
+                    datasets: [{
+                        label: "Cumulative Events",
+                        data: cumulative,
+                        borderColor: "#1d4ed8",
+                        backgroundColor: "rgba(29,78,216,0.08)",
+                        fill: true,
+                        tension: 0.25,
+                        pointRadius: 2,
+                    }],
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: slateGrid } },
+                        x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } },
+                    },
+                },
+            });
+        });
+});
+</script>
+{% endblock %}

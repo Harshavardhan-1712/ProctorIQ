@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Behavioral Clusters - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+    <div>
+        <h4 class="mb-0">Behavioral Clusters (K-Means)</h4>
+        <p class="text-muted small mb-0">
+            {{ session_count }} session(s)
+            {% if use_synthetic %}<span class="eg-badge eg-badge-neutral">SYNTHETIC DEMO DATA</span>{% endif %}
+        </p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('insights.clusters') }}" class="btn btn-sm {{ 'eg-btn-primary' if not use_synthetic else 'btn-outline-secondary' }}">Real Sessions</a>
+        <a href="{{ url_for('insights.clusters', source='synthetic') }}" class="btn btn-sm {{ 'eg-btn-primary' if use_synthetic else 'btn-outline-secondary' }}">Synthetic Demo</a>
+    </div>
+</div>
+
+{% if insufficient %}
+<div class="eg-empty-state">
+    Insufficient data for analysis — at least {{ min_sessions }} sessions are required for meaningful clustering
+    ({{ session_count }} available). Try the Synthetic Demo view above.
+</div>
+{% else %}
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-scatter-chart"></i> Cluster Visualization (PCA)</div>
+                {% if chart %}<img src="{{ chart }}" class="img-fluid" alt="Cluster PCA scatter">
+                {% else %}<div class="eg-empty-state">Insufficient data for analysis.</div>{% endif %}
+                <p class="text-muted small mt-2 mb-0">{{ result.interpretation_basis }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-diagram-3"></i> Cluster Characteristics</div>
+                {% for stat in result.cluster_stats %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ stat.cluster_label }}</strong>
+                        <span class="eg-badge eg-badge-neutral">{{ result.cluster_sizes.get(stat.cluster_index, 0) }} sessions</span>
+                    </div>
+                    <div class="small text-muted">
+                        Integrity score {{ stat.integrity_score }} &middot;
+                        Tab switches {{ stat.tab_switches }} &middot;
+                        Focus losses {{ stat.focus_losses }} &middot;
+                        Face absence events {{ stat.face_absent_events }} &middot;
+                        Multiple-face events {{ stat.multiple_face_events }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}

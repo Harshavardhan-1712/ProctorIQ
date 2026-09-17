@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Assessment Paused - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card eg-card">
+            <div class="card-body p-5 text-center">
+                <i class="bi bi-pause-circle" style="font-size:2.6rem;color:var(--eg-warning);"></i>
+                <h4 class="mt-3">Your assessment has been paused</h4>
+                <p class="text-muted">
+                    {{ assessment_session.invigilator_note or "An invigilator has paused this session. It will resume automatically once released." }}
+                </p>
+                <div class="spinner-border text-primary mt-2" role="status" aria-label="Waiting for resume">
+                    <span class="visually-hidden">Waiting...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Poll and reload once the invigilator resumes the session, so the
+    // candidate lands back on the live exam page automatically.
+    setInterval(function () {
+        fetch("{{ url_for('assessment.session_state', session_id=assessment_session.id) }}")
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.status !== "paused") window.location.reload();
+            })
+            .catch(() => {});
+    }, 5000);
+});
+</script>
+{% endblock %}

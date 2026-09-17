@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}AI Integrity Report - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('invigilator.session_detail', session_id=assessment_session.id) }}" class="small text-muted"><i class="bi bi-arrow-left"></i> Back to Session</a>
+<h4 class="mt-1 mb-3">AI Integrity Report — {{ assessment_session.user.full_name }}</h4>
+
+<form method="POST" action="{{ url_for('insights.generate_report', session_id=assessment_session.id) }}" class="mb-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn eg-btn-primary btn-sm"><i class="bi bi-robot"></i> {{ 'Regenerate Report' if report else 'Generate Report' }}</button>
+</form>
+
+{% if report %}
+<div class="card eg-card">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between flex-wrap gap-2 mb-3">
+            <div class="eg-status-row"><span class="eg-status-row-label">Integrity Score</span><span class="eg-info-value">{{ report.integrity_score }} / 100</span></div>
+            <div class="eg-status-row"><span class="eg-status-row-label">Risk</span>
+                <span class="eg-badge {{ 'eg-badge-success' if report.risk_level == 'LOW' else 'eg-badge-warning' if report.risk_level == 'MEDIUM' else 'eg-badge-danger' }}">{{ report.risk_level }}</span>
+            </div>
+            <div class="eg-status-row"><span class="eg-status-row-label">Model</span><span class="eg-info-value small">{{ report.model_used }}{% if report.is_fallback %} (fallback template — no LLM){% endif %}</span></div>
+            <div class="eg-status-row"><span class="eg-status-row-label">Generated</span><span class="eg-info-value small">{{ report.generated_at | local_datetime }}</span></div>
+        </div>
+
+        <h6>Summary</h6>
+        <p>{{ report.summary_text }}</p>
+
+        {% if report.recommendations_text %}
+        <h6>Recommendations</h6>
+        <p>{{ report.recommendations_text }}</p>
+        {% endif %}
+
+        <details class="mt-3">
+            <summary class="small text-muted">Structured evidence given to the agent (no other data was used)</summary>
+            <pre class="small bg-light p-2 mt-2">{{ report.structured_input_json }}</pre>
+        </details>
+    </div>
+</div>
+{% else %}
+<div class="eg-empty-state">No report generated yet for this session — click "Generate Report" above.</div>
+{% endif %}
+{% endblock %}

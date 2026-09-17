@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Assessments - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <h4 class="mb-0">Available Assessments</h4>
+    <p class="text-muted small mb-0">Select an assessment to begin the guided pre-assessment workflow.</p>
+</div>
+
+{% if assessments %}
+<div class="row g-4">
+    {% for a in assessments %}
+    <div class="col-lg-4 col-md-6">
+        <div class="card eg-card eg-assessment-card h-100">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="mb-0">{{ a.name }}</h5>
+                    {% if a.monitoring_enabled %}
+                        <span class="eg-badge eg-badge-success"><i class="bi bi-camera-video"></i> Monitored</span>
+                    {% endif %}
+                </div>
+                <p class="text-muted small mb-3">{{ a.description or "No description provided." }}</p>
+
+                <div class="eg-assessment-meta mb-3">
+                    <div><i class="bi bi-clock"></i> {{ a.duration_minutes }} minutes</div>
+                    <div><i class="bi bi-list-ol"></i> {{ a.total_questions }} questions</div>
+                    <div><i class="bi bi-award"></i> {{ a.total_marks | num }} total marks</div>
+                    <div><i class="bi bi-graph-up-arrow"></i>
+                        Pass: {% if a.passing_marks is not none %}{{ a.passing_marks | num }} marks{% else %}{{ a.passing_score_percent }}%{% endif %}
+                    </div>
+                    <div><i class="bi bi-arrow-repeat"></i> {{ a.allowed_attempts }} attempt(s) allowed</div>
+                </div>
+
+                <a href="{{ url_for('preassessment.readiness', assessment_id=a.id) }}" class="btn eg-btn-primary w-100 mt-auto">
+                    <i class="bi bi-play-fill"></i> Start Assessment
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card eg-card">
+    <div class="card-body">
+        <div class="eg-empty-state">No assessments are currently available.</div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

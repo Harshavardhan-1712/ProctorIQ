@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Assessment Details - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="eg-wizard-steps mb-4">
+    <span class="eg-wizard-step">1. Readiness</span>
+    <span class="eg-wizard-step active">2. Details</span>
+    <span class="eg-wizard-step">3. Terms</span>
+    <span class="eg-wizard-step">4. Privacy</span>
+    <span class="eg-wizard-step">5. Integrity Policy</span>
+    <span class="eg-wizard-step">6. Declaration</span>
+    <span class="eg-wizard-step">7. Confirm</span>
+</div>
+
+<div class="card eg-card">
+    <div class="card-body p-4">
+        <div class="eg-card-header"><i class="bi bi-info-circle"></i> Assessment Details</div>
+
+        <h4 class="mb-1">{{ assessment.name }}</h4>
+        <p class="text-muted">{{ assessment.description or "No additional description provided." }}</p>
+
+        <div class="row g-3 mt-2">
+            <div class="col-sm-4">
+                <div class="eg-status-card">
+                    <i class="bi bi-clock" style="font-size:1.4rem;color:var(--eg-primary);"></i>
+                    <div>
+                        <div class="eg-info-label">Duration</div>
+                        <div class="eg-info-value">{{ assessment.duration_minutes }} minutes</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="eg-status-card">
+                    <i class="bi bi-list-ol" style="font-size:1.4rem;color:var(--eg-primary);"></i>
+                    <div>
+                        <div class="eg-info-label">Number of Questions</div>
+                        <div class="eg-info-value">{{ assessment.total_questions }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="eg-status-card">
+                    <i class="bi bi-award" style="font-size:1.4rem;color:var(--eg-primary);"></i>
+                    <div>
+                        <div class="eg-info-label">Total Marks</div>
+                        <div class="eg-info-value">{{ assessment.total_marks | num }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="eg-status-card">
+                    <i class="bi bi-graph-up-arrow" style="font-size:1.4rem;color:var(--eg-primary);"></i>
+                    <div>
+                        <div class="eg-info-label">Passing Marks</div>
+                        <div class="eg-info-value">
+                            {% if assessment.passing_marks is not none %}
+                                {{ assessment.passing_marks | num }} marks
+                            {% else %}
+                                {{ assessment.passing_score_percent }}%
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="eg-status-card">
+                    <i class="bi bi-dash-circle" style="font-size:1.4rem;color:var(--eg-primary);"></i>
+                    <div>
+                        <div class="eg-info-label">Negative Marking</div>
+                        <div class="eg-info-value">
+                            {% if assessment.negative_marking_enabled %}
+                                {{ assessment.negative_marking_value | num }} per wrong answer
+                            {% else %}
+                                Not applicable
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="eg-status-card">
+                    <i class="bi bi-arrow-repeat" style="font-size:1.4rem;color:var(--eg-primary);"></i>
+                    <div>
+                        <div class="eg-info-label">Allowed Attempts</div>
+                        <div class="eg-info-value">{{ assessment.allowed_attempts }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="eg-status-card">
+                    <i class="bi bi-camera-video" style="font-size:1.4rem;color:var(--eg-primary);"></i>
+                    <div>
+                        <div class="eg-info-label">Camera Required</div>
+                        <div class="eg-info-value">
+                            {% if assessment.monitoring_enabled %}Yes{% else %}No{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="eg-status-card">
+                    <i class="bi bi-window" style="font-size:1.4rem;color:var(--eg-primary);"></i>
+                    <div>
+                        <div class="eg-info-label">Browser Monitoring</div>
+                        <div class="eg-info-value">
+                            {% if assessment.monitoring_enabled %}Enabled{% else %}Disabled{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="eg-status-card">
+                    <i class="bi bi-ui-checks" style="font-size:1.4rem;color:var(--eg-primary);"></i>
+                    <div>
+                        <div class="eg-info-label">Question Pattern</div>
+                        <div class="eg-info-value">{{ assessment.question_pattern }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if assessment.instructions %}
+        <div class="mt-4">
+            <div class="eg-card-header"><i class="bi bi-journal-text"></i> Assessment Instructions</div>
+            <div class="eg-policy-scroll" style="max-height:none;">{{ assessment.instructions }}</div>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('preassessment.overview_continue', assessment_id=assessment.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn eg-btn-primary w-100 mt-4">Continue to Terms &amp; Conditions</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

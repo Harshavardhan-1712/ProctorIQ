@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Reports - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="card eg-card mb-4">
+    <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <div class="eg-card-header mb-0"><i class="bi bi-file-earmark-text"></i> Candidate Monitoring Report</div>
+            <p class="text-muted small mb-0">Full chronological record of all logged events for {{ user.full_name }}.</p>
+        </div>
+        <div class="text-end">
+            <div class="eg-info-label">Final Integrity Score</div>
+            <div class="fs-3 fw-bold">{{ score }} / 100</div>
+        </div>
+    </div>
+</div>
+
+<div class="card eg-card">
+    <div class="card-body p-4">
+        {% if events %}
+        <div class="table-responsive">
+            <table class="eg-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Event Type</th>
+                        <th>Severity</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                    <tr>
+                        <td>{{ event.timestamp | local_datetime }}</td>
+                        <td><code>{{ event.event_type }}</code></td>
+                        <td>
+                            {% if event.severity == 'critical' %}
+                                <span class="eg-badge eg-badge-danger">Critical</span>
+                            {% elif event.severity == 'warning' %}
+                                <span class="eg-badge eg-badge-warning">Warning</span>
+                            {% else %}
+                                <span class="eg-badge eg-badge-neutral">Info</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ event.description }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="eg-empty-state">No events recorded yet.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

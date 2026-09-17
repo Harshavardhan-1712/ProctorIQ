@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block title %}Exam Monitoring - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+
+    <!-- Live camera + face status -->
+    <div class="col-lg-5">
+        <div class="card eg-card">
+            <div class="card-body p-4 text-center">
+                <div class="eg-card-header justify-content-center"><i class="bi bi-camera-video"></i> Live Camera Feed</div>
+
+                <div class="eg-monitor-frame mb-3">
+                    <img id="monitorFeed" src="{{ url_for('camera.video_feed') }}" alt="Live monitoring feed">
+                </div>
+
+                <div id="faceStatusBadge" class="eg-badge eg-badge-neutral mb-3">
+                    <span class="eg-dot eg-dot-neutral"></span> <span id="faceStatusText">Monitoring not started</span>
+                </div>
+
+                <div id="monitorControls">
+                    <button id="startMonitoringBtn" type="button" class="btn eg-btn-primary w-100">
+                        <i class="bi bi-play-fill"></i> Launch Secure Exam
+                    </button>
+                    <button id="stopMonitoringBtn" type="button" class="btn btn-outline-danger w-100 mt-2 d-none">
+                        <i class="bi bi-stop-fill"></i> End Monitoring Session
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Integrity score + live event log -->
+    <div class="col-lg-7">
+        <div class="card eg-card mb-4">
+            <div class="card-body p-4 text-center">
+                <div class="eg-card-header justify-content-center"><i class="bi bi-shield-check"></i> Integrity Score</div>
+                <div class="eg-score-ring">
+                    <div class="eg-score-ring-value" id="integrityScoreValue">100</div>
+                    <div class="eg-score-ring-label">out of 100</div>
+                </div>
+                <div class="text-muted small mt-3">
+                    Points are deducted automatically for monitoring violations
+                    (tab switches, lost face detection, fullscreen exit, etc.).
+                </div>
+            </div>
+        </div>
+
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-list-check"></i> Live Monitoring Log</div>
+                <ul id="eventLog" class="eg-timeline">
+                    <li class="eg-empty-state" id="eventLogEmpty">Monitoring events will appear here once the session starts.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/browser-monitor.js') }}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const startBtn = document.getElementById("startMonitoringBtn");
+    const stopBtn = document.getElementById("stopMonitoringBtn");
+    const faceStatusBadge = document.getElementById("faceStatusBadge");
+    const faceStatusText = document.getElementById("faceStatusText");
+    const scoreValue = document.getElementById("integrityScoreValue");
+    const eventLog = document.getElementById("eventLog");
+    const eventLogEmpty = document.getElementById("eventLogEmpty");
+
+    let pollTimer = null;
+    const POLL_INTERVAL_MS = 3000;
+
+    const STATUS_BADGE_CLASS = {
+        single_face: "eg-badge-success",
+        no_face: "eg-badge-warning",
+        multiple_faces: "eg-badge-danger",
+        camera_error: "eg-badge-danger",
+    };
+    const STATUS_DOT_CLASS = {
+        single_face: "eg-dot-success",
+        no_face: "eg-dot-warning",
+        multiple_faces: "eg-dot-danger",
+        camera_error: "eg-dot-danger",
+    };
+
+    function addLogEntry(description, severity) {
+        eventLogEmpty.classList.add("d-none");
+
+        const iconClass = severity === "critical" ? "eg-badge-danger"
+            : severity === "warning" ? "eg-badge-warning"
+            : "eg-badge-success";
+        const bootstrapIcon = severity === "critical" ? "bi-exclamation-triangle-fill"
+            : severity === "warning" ? "bi-exclamation-circle"
+            : "bi-check-lg";
+
+        const item = document.createElement("li");
+        item.className = "eg-timeline-item";
+        item.innerHTML =
+            '<div class="eg-timeline-icon ' + iconClass + '"><i class="bi ' + bootstrapIcon + '"></i></div>' +
+            '<div class="eg-timeline-body">' +
+                '<div class="eg-timeline-desc">' + description + '</div>' +
+                '<div class="eg-timeline-time">' + new Date().toLocaleTimeString() + '</div>' +
+            '</div>';
+        eventLog.insertBefore(item, eventLog.firstChild);
+    }
+
+    function updateScore(score) {
+        scoreValue.textContent = score;
+    }
+
+    function setFaceStatus(status, message) {
+        faceStatusText.textContent = message;
+        faceStatusBadge.className = "eg-badge mb-3 " + (STATUS_BADGE_CLASS[status] || "eg-badge-neutral");
+        const dot = faceStatusBadge.querySelector(".eg-dot");
+        dot.className = "eg-dot " + (STATUS_DOT_CLASS[status] || "eg-dot-neutral");
+    }
+
+    function pollFaceStatus() {
+        fetch("{{ url_for('monitoring.monitoring_status') }}")
+            .then((res) => res.json())
+            .then((data) => {
+                setFaceStatus(data.status, data.message);
+                updateScore(data.score);
+            })
+            .catch(() => {
+                setFaceStatus("camera_error", "Unable to reach monitoring service");
+            });
+    }
+
+    function handleBrowserEvent(eventType, description) {
+        addLogEntry(description, eventType === "devtools_detected" || eventType === "fullscreen_exit" ? "critical" : "warning");
+
+        fetch("{{ url_for('monitoring.monitoring_browser_event') }}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ event_type: eventType, description: description }),
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success) updateScore(data.score);
+            })
+            .catch(() => {});
+    }
+
+    startBtn.addEventListener("click", function () {
+        fetch("{{ url_for('monitoring.monitoring_start') }}", { method: "POST" })
+            .then((res) => res.json())
+            .then((data) => {
+                updateScore(data.score);
+                addLogEntry("Live monitoring started.", "info");
+
+                startBtn.classList.add("d-none");
+                stopBtn.classList.remove("d-none");
+
+                ExamGuardBrowserMonitor.start(handleBrowserEvent);
+                pollFaceStatus();
+                pollTimer = setInterval(pollFaceStatus, POLL_INTERVAL_MS);
+
+                // Encourage (not enforce) fullscreen for the exam session.
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen().catch(() => {});
+                }
+            });
+    });
+
+    stopBtn.addEventListener("click", function () {
+        fetch("{{ url_for('monitoring.monitoring_stop') }}", { method: "POST" })
+            .then((res) => res.json())
+            .then((data) => {
+                addLogEntry("Monitoring session ended.", "info");
+                updateScore(data.score);
+
+                ExamGuardBrowserMonitor.stop();
+                if (pollTimer) clearInterval(pollTimer);
+
+                stopBtn.classList.add("d-none");
+                startBtn.classList.remove("d-none");
+                setFaceStatus("neutral", "Monitoring not started");
+
+                if (document.fullscreenElement) {
+                    document.exitFullscreen().catch(() => {});
+                }
+            });
+    });
+});
+</script>
+{% endblock %}

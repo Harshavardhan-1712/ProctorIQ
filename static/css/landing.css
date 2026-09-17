@@ -1,0 +1,262 @@
+/* ==========================================================================
+   ProctorIQ — Landing page (Module 6, Part 6)
+   Extends the enterprise palette defined in style.css (:root variables).
+   ========================================================================== */
+
+.eg-landing-body {
+    background-color: #fff;
+    margin: 0;
+}
+
+.eg-brand-logo { width: 26px; height: 26px; }
+
+/* --- Nav --- */
+
+.eg-landing-nav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--eg-slate-900);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.eg-landing-nav-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0.85rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.eg-landing-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-decoration: none;
+}
+
+.eg-landing-nav-links {
+    display: flex;
+    gap: 1.6rem;
+    flex: 1;
+    justify-content: center;
+}
+
+.eg-landing-nav-links a {
+    color: var(--eg-slate-400);
+    font-size: 0.88rem;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.eg-landing-nav-links a:hover { color: #fff; }
+
+.eg-landing-nav-actions { display: flex; gap: 0.6rem; }
+
+/* --- Hero --- */
+
+.eg-hero {
+    background: linear-gradient(160deg, var(--eg-slate-900) 0%, var(--eg-primary-dark) 55%, var(--eg-primary) 100%);
+    padding: 5.5rem 1.5rem 5rem;
+    text-align: center;
+}
+
+.eg-hero-inner { max-width: 760px; margin: 0 auto; }
+
+.eg-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255, 255, 255, 0.12);
+    color: #dbeafe;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-bottom: 1.4rem;
+}
+
+.eg-hero h1 {
+    color: #fff;
+    font-size: 2.6rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 1.1rem;
+}
+
+.eg-hero-lead {
+    color: #dbeafe;
+    font-size: 1.05rem;
+    margin-bottom: 2rem;
+}
+
+.eg-hero-actions { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
+
+/* --- Stats strip --- */
+
+.eg-stats-strip {
+    background: var(--eg-slate-50);
+    border-bottom: 1px solid var(--eg-slate-200);
+    padding: 2.2rem 1.5rem;
+}
+
+.eg-stats-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    text-align: center;
+}
+
+.eg-stat-num { font-size: 2rem; font-weight: 800; color: var(--eg-primary); }
+.eg-stat-label { font-size: 0.8rem; color: var(--eg-slate-500); text-transform: uppercase; letter-spacing: 0.03em; }
+
+/* --- Sections --- */
+
+.eg-section { padding: 5rem 1.5rem; }
+.eg-section-alt { background-color: var(--eg-slate-50); }
+.eg-section-inner { max-width: 1100px; margin: 0 auto; }
+
+.eg-section-heading { text-align: center; max-width: 620px; margin: 0 auto 3rem; }
+
+.eg-eyebrow {
+    display: inline-block;
+    color: var(--eg-primary);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.5rem;
+}
+
+.eg-section-heading h2 { font-size: 1.8rem; font-weight: 700; }
+
+/* --- Feature grid --- */
+
+.eg-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.eg-feature-card {
+    background: #fff;
+    border: 1px solid var(--eg-slate-200);
+    border-radius: var(--eg-radius);
+    padding: 1.75rem 1.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.eg-feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.eg-feature-card i { font-size: 1.6rem; color: var(--eg-primary); margin-bottom: 0.8rem; display: block; }
+.eg-feature-card h5 { font-weight: 700; margin-bottom: 0.5rem; }
+.eg-feature-card p { color: var(--eg-slate-600); font-size: 0.9rem; margin: 0; }
+
+/* --- Architecture diagram --- */
+
+.eg-arch-diagram { display: flex; justify-content: center; }
+.eg-arch-col { display: flex; flex-direction: column; align-items: center; max-width: 420px; width: 100%; }
+
+.eg-arch-box {
+    width: 100%;
+    background: #fff;
+    border: 1px solid var(--eg-slate-200);
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    text-align: center;
+    font-weight: 600;
+    color: var(--eg-slate-700);
+    font-size: 0.92rem;
+}
+
+.eg-arch-box-primary { background: var(--eg-primary); color: #fff; border-color: var(--eg-primary); }
+.eg-arch-arrow { color: var(--eg-slate-400); padding: 0.3rem 0; }
+
+/* --- Workflow steps --- */
+
+.eg-workflow-steps {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.eg-workflow-step {
+    flex: 1 1 180px;
+    max-width: 220px;
+    background: #fff;
+    border: 1px solid var(--eg-slate-200);
+    border-radius: var(--eg-radius);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--eg-slate-700);
+}
+
+.eg-workflow-step span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--eg-primary);
+    color: #fff;
+    font-weight: 800;
+    margin: 0 auto 0.75rem;
+}
+
+/* --- Testimonials --- */
+
+.eg-testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.eg-testimonial-card {
+    background: #fff;
+    border: 1px solid var(--eg-slate-200);
+    border-radius: var(--eg-radius);
+    padding: 1.75rem 1.5rem;
+}
+
+.eg-testimonial-card p {
+    font-size: 0.92rem;
+    color: var(--eg-slate-700);
+    font-style: italic;
+}
+
+.eg-testimonial-author { font-size: 0.82rem; font-weight: 600; color: var(--eg-slate-500); margin-top: 0.75rem; }
+
+/* --- Footer --- */
+
+.eg-footer {
+    background: var(--eg-slate-900);
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+}
+
+.eg-footer .eg-landing-brand { justify-content: center; }
+.eg-footer p { color: var(--eg-slate-400) !important; }
+
+/* --- Responsive --- */
+
+@media (max-width: 900px) {
+    .eg-landing-nav-links { display: none; }
+    .eg-hero h1 { font-size: 2rem; }
+    .eg-stats-inner { grid-template-columns: repeat(2, 1fr); }
+    .eg-feature-grid { grid-template-columns: 1fr; }
+    .eg-testimonial-grid { grid-template-columns: 1fr; }
+}

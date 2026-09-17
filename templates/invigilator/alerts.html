@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Alerts - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+    <h4 class="mb-0">Alerts</h4>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('insights.alerts') }}" class="btn btn-sm {{ 'eg-btn-primary' if not status_filter else 'btn-outline-secondary' }}">All</a>
+        <a href="{{ url_for('insights.alerts', status='OPEN') }}" class="btn btn-sm {{ 'eg-btn-primary' if status_filter == 'OPEN' else 'btn-outline-secondary' }}">Open</a>
+        <a href="{{ url_for('insights.alerts', status='ACKNOWLEDGED') }}" class="btn btn-sm {{ 'eg-btn-primary' if status_filter == 'ACKNOWLEDGED' else 'btn-outline-secondary' }}">Acknowledged</a>
+        <a href="{{ url_for('insights.alerts', status='RESOLVED') }}" class="btn btn-sm {{ 'eg-btn-primary' if status_filter == 'RESOLVED' else 'btn-outline-secondary' }}">Resolved</a>
+    </div>
+</div>
+
+{% if alerts %}
+<div class="table-responsive">
+    <table class="eg-table">
+        <thead><tr><th>Time</th><th>Candidate</th><th>Event</th><th>Severity</th><th>Description</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+            {% for a in alerts %}
+            <tr>
+                <td>{{ a.timestamp | local_datetime }}</td>
+                <td><a href="{{ url_for('invigilator.session_detail', session_id=a.session_id) }}">{{ a.user.full_name }}</a></td>
+                <td><code>{{ a.event_type }}</code></td>
+                <td>{% if a.severity == 'critical' %}<span class="eg-badge eg-badge-danger">Critical</span>{% else %}<span class="eg-badge eg-badge-warning">Warning</span>{% endif %}</td>
+                <td>{{ a.description }}</td>
+                <td><span class="eg-badge {{ 'eg-badge-danger' if a.status == 'OPEN' else 'eg-badge-warning' if a.status == 'ACKNOWLEDGED' else 'eg-badge-success' }}">{{ a.status }}</span></td>
+                <td class="d-flex gap-1">
+                    {% if a.status == 'OPEN' %}
+                    <form method="POST" action="{{ url_for('insights.acknowledge_alert', alert_id=a.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">Acknowledge</button>
+                    </form>
+                    {% endif %}
+                    {% if a.status != 'RESOLVED' %}
+                    <form method="POST" action="{{ url_for('insights.resolve_alert', alert_id=a.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-outline-success btn-sm">Resolve</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="eg-empty-state">No alerts to show.</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Candidate Profile - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card eg-card">
+            <div class="card-body p-4 text-center">
+                {% if user.photo_path %}
+                    <img src="{{ url_for('static', filename=user.photo_path) }}"
+                         alt="{{ user.full_name }}" class="eg-profile-photo-lg mb-3">
+                {% else %}
+                    <div class="eg-profile-photo-lg-placeholder mb-3">{{ user.full_name[0] | upper }}</div>
+                {% endif %}
+                <h4 class="mb-1">{{ user.full_name }}</h4>
+                <p class="text-muted small mb-3">{{ user.email }}</p>
+
+                {% if user.photo_path %}
+                    <span class="eg-badge eg-badge-success"><i class="bi bi-patch-check-fill"></i> Identity Verified</span>
+                {% else %}
+                    <span class="eg-badge eg-badge-warning"><i class="bi bi-exclamation-circle"></i> Verification Pending</span>
+                {% endif %}
+
+                <a href="{{ url_for('camera.capture_photo') }}" class="btn btn-outline-primary btn-sm w-100 mt-4">
+                    {% if user.photo_path %}Retake Verification Photo{% else %}Complete Identity Verification{% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card eg-card mb-4">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-info-circle"></i> Account Details</div>
+
+                <div class="eg-profile-row">
+                    <span class="eg-profile-row-label">Candidate ID</span>
+                    <span class="eg-profile-row-value">EG-{{ '%04d' % user.id }}</span>
+                </div>
+                <div class="eg-profile-row">
+                    <span class="eg-profile-row-label">Full Name</span>
+                    <span class="eg-profile-row-value">{{ user.full_name }}</span>
+                </div>
+                <div class="eg-profile-row">
+                    <span class="eg-profile-row-label">Email Address</span>
+                    <span class="eg-profile-row-value">{{ user.email }}</span>
+                </div>
+                <div class="eg-profile-row">
+                    <span class="eg-profile-row-label">Registration Time</span>
+                    <span class="eg-profile-row-value">{{ user.created_at | local_datetime }}</span>
+                </div>
+                <div class="eg-profile-row">
+                    <span class="eg-profile-row-label">Current Integrity Score</span>
+                    <span class="eg-profile-row-value">{{ user.integrity_score }} / 100</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-clock-history"></i> Account Activity</div>
+
+                {% if recent_events %}
+                <ul class="eg-timeline">
+                    {% for event in recent_events %}
+                    <li class="eg-timeline-item">
+                        <div class="eg-timeline-icon
+                            {% if event.severity == 'critical' %}eg-badge-danger
+                            {% elif event.severity == 'warning' %}eg-badge-warning
+                            {% else %}eg-badge-success{% endif %}">
+                            <i class="bi
+                                {% if event.severity == 'critical' %}bi-exclamation-triangle-fill
+                                {% elif event.severity == 'warning' %}bi-exclamation-circle
+                                {% else %}bi-check-lg{% endif %}"></i>
+                        </div>
+                        <div class="eg-timeline-body">
+                            <div class="eg-timeline-desc">{{ event.description }}</div>
+                            <div class="eg-timeline-time">{{ event.timestamp | local_datetime }}</div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="eg-empty-state">No activity recorded yet.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

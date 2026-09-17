@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ platform_name }}{% endblock %}</title>
+
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Bootstrap 5 (vendored locally — no external CDN dependency) -->
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Bootstrap Icons (vendored locally) -->
+    <link href="{{ url_for('static', filename='vendor/bootstrap-icons/font/bootstrap-icons.min.css') }}" rel="stylesheet">
+    <!-- Custom enterprise theme -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="{{ 'eg-app-body' if current_user.is_authenticated else 'eg-auth-body' }}">
+
+{% macro flashes() %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'danger' else category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+{% endmacro %}
+
+{% if current_user.is_authenticated %}
+<div class="eg-app-shell">
+
+    <!-- Sidebar -->
+    <aside class="eg-sidebar">
+        <div class="eg-sidebar-brand">
+            <img src="{{ url_for('static', filename='favicon.svg') }}" alt="" class="eg-brand-logo">
+            <span>{{ platform_name }}</span>
+        </div>
+
+        <nav class="eg-sidebar-nav">
+            {% if current_user.is_invigilator() %}
+            <a href="{{ url_for('invigilator.dashboard') }}"
+               class="eg-nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('invigilator.') }}">
+                <i class="bi bi-eye"></i> Live Candidates
+            </a>
+            <a href="{{ url_for('insights.analytics') }}"
+               class="eg-nav-link {{ 'active' if request.endpoint == 'insights.analytics' }}">
+                <i class="bi bi-bar-chart-line"></i> Analytics
+            </a>
+            <a href="{{ url_for('insights.clusters') }}"
+               class="eg-nav-link {{ 'active' if request.endpoint == 'insights.clusters' }}">
+                <i class="bi bi-diagram-3"></i> Behavioral Clusters
+            </a>
+            <a href="{{ url_for('insights.alerts') }}"
+               class="eg-nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('insights.alerts') }}">
+                <i class="bi bi-bell"></i> Alerts
+            </a>
+            <a href="{{ url_for('insights.validate') }}"
+               class="eg-nav-link {{ 'active' if request.endpoint == 'insights.validate' }}">
+                <i class="bi bi-clipboard-check"></i> Validation
+            </a>
+            <a href="{{ url_for('dashboard.settings') }}"
+               class="eg-nav-link {{ 'active' if request.endpoint == 'dashboard.settings' }}">
+                <i class="bi bi-gear"></i> Settings
+            </a>
+            {% else %}
+            <a href="{{ url_for('dashboard.dashboard') }}"
+               class="eg-nav-link {{ 'active' if request.endpoint == 'dashboard.dashboard' }}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a href="{{ url_for('preassessment.list_assessments') }}"
+               class="eg-nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('preassessment.') or request.endpoint and request.endpoint.startswith('assessment.') }}">
+                <i class="bi bi-journal-check"></i> Assessments
+            </a>
+            <a href="{{ url_for('dashboard.profile') }}"
+               class="eg-nav-link {{ 'active' if request.endpoint == 'dashboard.profile' }}">
+                <i class="bi bi-person-badge"></i> Candidate Profile
+            </a>
+            <a href="{{ url_for('monitoring.monitoring') }}"
+               class="eg-nav-link {{ 'active' if request.endpoint == 'monitoring.monitoring' }}">
+                <i class="bi bi-camera-video"></i> Exam Monitoring
+            </a>
+            <a href="{{ url_for('monitoring.violations') }}"
+               class="eg-nav-link {{ 'active' if request.endpoint == 'monitoring.violations' }}">
+                <i class="bi bi-exclamation-triangle"></i> Violations
+            </a>
+            <a href="{{ url_for('monitoring.analytics') }}"
+               class="eg-nav-link {{ 'active' if request.endpoint == 'monitoring.analytics' }}">
+                <i class="bi bi-graph-up"></i> Analytics
+            </a>
+            <a href="{{ url_for('monitoring.reports') }}"
+               class="eg-nav-link {{ 'active' if request.endpoint == 'monitoring.reports' }}">
+                <i class="bi bi-file-earmark-text"></i> Reports
+            </a>
+            <a href="{{ url_for('dashboard.settings') }}"
+               class="eg-nav-link {{ 'active' if request.endpoint == 'dashboard.settings' }}">
+                <i class="bi bi-gear"></i> Settings
+            </a>
+            {% endif %}
+        </nav>
+
+        <div class="eg-sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="eg-nav-link eg-nav-logout">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main column -->
+    <div class="eg-main">
+        <header class="eg-topbar">
+            <div>
+                <div class="eg-topbar-title">{{ platform_name }}</div>
+                <div class="eg-topbar-subtitle">{{ "Invigilator Console" if current_user.is_invigilator() else platform_tagline }}</div>
+            </div>
+            <div class="eg-topbar-user">
+                {% if current_user.photo_path %}
+                    <img src="{{ url_for('static', filename=current_user.photo_path) }}"
+                         alt="{{ current_user.full_name }}" class="eg-topbar-avatar">
+                {% else %}
+                    <div class="eg-topbar-avatar-placeholder">{{ current_user.full_name[0] | upper }}</div>
+                {% endif %}
+                <div class="eg-topbar-user-info">
+                    <div class="eg-topbar-user-name">{{ current_user.full_name }}</div>
+                    <div class="eg-topbar-user-role">{{ current_user.role | capitalize }}</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="eg-content">
+            {{ flashes() }}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+{% else %}
+
+<main class="eg-auth-main">
+    <div class="eg-auth-brand">
+        <img src="{{ url_for('static', filename='favicon.svg') }}" alt="" class="eg-brand-logo eg-brand-logo-lg">
+        <span>{{ platform_name }}</span>
+    </div>
+    <div class="eg-auth-tagline">{{ platform_tagline }}</div>
+
+    <div class="eg-auth-flashes">
+        {{ flashes() }}
+    </div>
+
+    {% block auth_content %}{% endblock %}
+</main>
+
+{% endif %}
+
+<script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/csrf.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

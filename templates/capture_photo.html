@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Capture Profile Photo - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card eg-card">
+            <div class="card-body p-4 text-center">
+                <h3 class="eg-heading mb-1">Capture Your Profile Photo</h3>
+                <p class="text-muted mb-4">
+                    This photo will be used to identify you before your exam.
+                    Make sure only your face is clearly visible and well lit —
+                    photos with no face or more than one face will be rejected.
+                </p>
+
+                <div id="cameraErrorBox" class="alert alert-danger d-none" role="alert"></div>
+                <div id="faceWarningBox" class="alert alert-warning d-none" role="alert"></div>
+
+                <div class="eg-camera-frame mb-3">
+                    <img id="videoFeed"
+                         src="{{ url_for('camera.video_feed') }}"
+                         alt="Live webcam preview"
+                         class="eg-camera-media">
+                    <img id="capturedPreview"
+                         alt="Captured photo preview"
+                         class="eg-camera-media d-none">
+                </div>
+
+                <div id="liveControls">
+                    <button id="captureBtn" type="button" class="btn eg-btn-primary px-4">
+                        <i class="bi bi-camera-fill"></i> Capture Photo
+                    </button>
+                </div>
+
+                <div id="reviewControls" class="d-none">
+                    <button id="retakeBtn" type="button" class="btn btn-outline-secondary px-4 me-2">
+                        <i class="bi bi-arrow-repeat"></i> Retake
+                    </button>
+                    <button id="saveBtn" type="button" class="btn eg-btn-primary px-4">
+                        <i class="bi bi-check-circle-fill"></i> Save Photo
+                    </button>
+                </div>
+
+                <div class="mt-3">
+                    <a href="{{ url_for('camera.skip_photo') }}" class="text-muted small">
+                        Skip for now — I'll add my photo later
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const videoFeed = document.getElementById("videoFeed");
+    const capturedPreview = document.getElementById("capturedPreview");
+    const liveControls = document.getElementById("liveControls");
+    const reviewControls = document.getElementById("reviewControls");
+    const cameraErrorBox = document.getElementById("cameraErrorBox");
+    const faceWarningBox = document.getElementById("faceWarningBox");
+    const captureBtn = document.getElementById("captureBtn");
+    const retakeBtn = document.getElementById("retakeBtn");
+    const saveBtn = document.getElementById("saveBtn");
+
+    // Fatal: the webcam itself is unavailable. Hides the live feed and
+    // capture controls entirely — retrying won't help without fixing
+    // the camera connection first (the candidate can still Skip).
+    function showCameraError(message) {
+        faceWarningBox.classList.add("d-none");
+        cameraErrorBox.textContent = message || "Unable to access the webcam. Please check your camera connection and permissions, or skip this step for now.";
+        cameraErrorBox.classList.remove("d-none");
+        videoFeed.classList.add("d-none");
+        liveControls.classList.add("d-none");
+    }
+
+    // Recoverable: the photo itself was rejected (0 or 2+ faces). The
+    // camera is working fine, so keep the live feed and Capture button
+    // available — the candidate just needs to try again.
+    function showFaceWarning(message) {
+        cameraErrorBox.classList.add("d-none");
+        faceWarningBox.textContent = message || "We couldn't validate a single face in that photo. Please try again.";
+        faceWarningBox.classList.remove("d-none");
+    }
+
+    function clearMessages() {
+        cameraErrorBox.classList.add("d-none");
+        faceWarningBox.classList.add("d-none");
+    }
+
+    // If the MJPEG stream itself fails to load (camera unavailable),
+    // the <img> fires an "error" event.
+    videoFeed.addEventListener("error", function () {
+        showCameraError();
+    });
+
+    captureBtn.addEventListener("click", function () {
+        captureBtn.disabled = true;
+        clearMessages();
+
+        fetch("{{ url_for('camera.capture') }}", { method: "POST" })
+            .then((res) => res.json().then((data) => ({ status: res.status, data })))
+            .then(({ status, data }) => {
+                captureBtn.disabled = false;
+
+                if (status === 200 && data.success) {
+                    // Exactly one face found and saved — move to review.
+                    capturedPreview.src = data.preview_url;
+                    videoFeed.classList.add("d-none");
+                    capturedPreview.classList.remove("d-none");
+                    liveControls.classList.add("d-none");
+                    reviewControls.classList.remove("d-none");
+                } else if (status === 422 && data.error_type === "face") {
+                    // 0 or 2+ faces — recoverable, stay on the live feed.
+                    showFaceWarning(data.error);
+                } else {
+                    // Camera/device failure — fatal for this session.
+                    showCameraError(data.error);
+                }
+            })
+            .catch(() => {
+                captureBtn.disabled = false;
+                showCameraError();
+            });
+    });
+
+    retakeBtn.addEventListener("click", function () {
+        clearMessages();
+        fetch("{{ url_for('camera.retake') }}", { method: "POST" }).finally(() => {
+            capturedPreview.classList.add("d-none");
+            videoFeed.classList.remove("d-none");
+            // Force the <img> to reconnect to the MJPEG stream.
+            videoFeed.src = "{{ url_for('camera.video_feed') }}?t=" + Date.now();
+            reviewControls.classList.add("d-none");
+            liveControls.classList.remove("d-none");
+        });
+    });
+
+    saveBtn.addEventListener("click", function () {
+        saveBtn.disabled = true;
+        fetch("{{ url_for('camera.save_photo') }}", { method: "POST" })
+            .then((res) => {
+                // The server redirects to the dashboard on success, or
+                // back to this page (with a flashed error) if saving
+                // failed — follow wherever it actually sent us.
+                window.location.href = res.url;
+            })
+            .catch(() => {
+                saveBtn.disabled = false;
+                showCameraError();
+            });
+    });
+});
+</script>
+{% endblock %}

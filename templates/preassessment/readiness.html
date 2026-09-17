@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}System Readiness Check - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="eg-wizard-steps mb-4">
+    <span class="eg-wizard-step active">1. Readiness</span>
+    <span class="eg-wizard-step">2. Details</span>
+    <span class="eg-wizard-step">3. Terms</span>
+    <span class="eg-wizard-step">4. Privacy</span>
+    <span class="eg-wizard-step">5. Integrity Policy</span>
+    <span class="eg-wizard-step">6. Declaration</span>
+    <span class="eg-wizard-step">7. Confirm</span>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card eg-card">
+            <div class="card-body p-4">
+                <div class="eg-card-header"><i class="bi bi-clipboard-check"></i> System Readiness Check</div>
+                <p class="text-muted small mb-4">
+                    We verify your system meets the requirements before you begin
+                    <strong>{{ assessment.name }}</strong>.
+                </p>
+
+                <div id="checklist">
+                    <div class="eg-readiness-row" data-check="camera_connected">
+                        <span class="eg-status-row-label"><i class="bi bi-camera"></i> Camera Connected</span>
+                        <span class="eg-badge eg-badge-neutral eg-readiness-badge"><span class="eg-dot eg-dot-neutral"></span> Checking</span>
+                    </div>
+                    <div class="eg-readiness-row" data-check="face_visible">
+                        <span class="eg-status-row-label"><i class="bi bi-person-check"></i> Face Visible</span>
+                        <span class="eg-badge eg-badge-neutral eg-readiness-badge"><span class="eg-dot eg-dot-neutral"></span> Checking</span>
+                    </div>
+                    <div class="eg-readiness-row" data-check="single_face">
+                        <span class="eg-status-row-label"><i class="bi bi-person-bounding-box"></i> Single Face Detected</span>
+                        <span class="eg-badge eg-badge-neutral eg-readiness-badge"><span class="eg-dot eg-dot-neutral"></span> Checking</span>
+                    </div>
+                    <div class="eg-readiness-row" data-check="good_lighting">
+                        <span class="eg-status-row-label"><i class="bi bi-brightness-high"></i> Good Lighting</span>
+                        <span class="eg-badge eg-badge-neutral eg-readiness-badge"><span class="eg-dot eg-dot-neutral"></span> Checking</span>
+                    </div>
+                    <div class="eg-readiness-row" data-check="browser_supported">
+                        <span class="eg-status-row-label"><i class="bi bi-window"></i> Browser Supported</span>
+                        <span class="eg-badge eg-badge-neutral eg-readiness-badge"><span class="eg-dot eg-dot-neutral"></span> Checking</span>
+                    </div>
+                    <div class="eg-readiness-row" data-check="fullscreen_supported">
+                        <span class="eg-status-row-label"><i class="bi bi-arrows-fullscreen"></i> Fullscreen Enabled</span>
+                        <span class="eg-badge eg-badge-neutral eg-readiness-badge"><span class="eg-dot eg-dot-neutral"></span> Checking</span>
+                    </div>
+                    <div class="eg-readiness-row" data-check="stable_internet">
+                        <span class="eg-status-row-label"><i class="bi bi-wifi"></i> Stable Internet</span>
+                        <span class="eg-badge eg-badge-neutral eg-readiness-badge"><span class="eg-dot eg-dot-neutral"></span> Checking</span>
+                    </div>
+                    <div class="eg-readiness-row" data-check="microphone">
+                        <span class="eg-status-row-label"><i class="bi bi-mic"></i> Microphone <span class="text-muted">(optional)</span></span>
+                        <span class="eg-badge eg-badge-neutral eg-readiness-badge"><span class="eg-dot eg-dot-neutral"></span> Checking</span>
+                    </div>
+                </div>
+
+                <form id="continueForm" method="POST" action="{{ url_for('preassessment.readiness_continue', assessment_id=assessment.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" id="continueBtn" class="btn eg-btn-primary w-100 mt-4" disabled>
+                        Continue to Assessment Overview
+                    </button>
+                </form>
+                <p class="text-muted small text-center mt-2 mb-0">
+                    All mandatory checks must pass before you can continue.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card eg-card">
+            <div class="card-body p-4 text-center">
+                <div class="eg-card-header justify-content-center"><i class="bi bi-speedometer"></i> Readiness Score</div>
+                <div class="eg-score-ring mb-2">
+                    <div class="eg-score-ring-value" id="readinessScoreValue">0%</div>
+                    <div class="eg-score-ring-label">ready</div>
+                </div>
+                <div class="eg-camera-frame mt-3" style="max-width: 100%;">
+                    <img src="{{ url_for('camera.video_feed') }}" alt="Camera preview" class="eg-camera-media">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Checks required for Start Assessment to unlock. Microphone is
+    // explicitly optional per spec Part 3, so it's excluded here.
+    const MANDATORY_CHECKS = [
+        "camera_connected", "face_visible", "single_face", "good_lighting",
+        "browser_supported", "fullscreen_supported", "stable_internet",
+    ];
+
+    const results = {};
+
+    function setRow(key, ok) {
+        const row = document.querySelector('.eg-readiness-row[data-check="' + key + '"]');
+        if (!row) return;
+        const badge = row.querySelector(".eg-readiness-badge");
+        const dot = badge.querySelector(".eg-dot");
+        badge.classList.remove("eg-badge-success", "eg-badge-danger", "eg-badge-neutral");
+        dot.classList.remove("eg-dot-success", "eg-dot-danger", "eg-dot-neutral");
+        if (ok) {
+            badge.classList.add("eg-badge-success");
+            dot.classList.add("eg-dot-success");
+            badge.lastChild.textContent = " Passed";
+        } else {
+            badge.classList.add("eg-badge-danger");
+            dot.classList.add("eg-dot-danger");
+            badge.lastChild.textContent = " Failed";
+        }
+        results[key] = !!ok;
+        updateScore();
+    }
+
+    function updateScore() {
+        const keys = Object.keys(results);
+        if (!keys.length) return;
+        const passed = keys.filter((k) => results[k]).length;
+        const pct = Math.round((passed / keys.length) * 100);
+        document.getElementById("readinessScoreValue").textContent = pct + "%";
+
+        const mandatoryOk = MANDATORY_CHECKS.every((k) => results[k] === true);
+        document.getElementById("continueBtn").disabled = !mandatoryOk;
+    }
+
+    // --- Browser-side checks (run once) ---
+    setRow("browser_supported", !!(navigator.mediaDevices && window.fetch && document.documentElement.requestFullscreen !== undefined));
+    setRow("fullscreen_supported", !!document.documentElement.requestFullscreen);
+
+    if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+        navigator.mediaDevices.enumerateDevices().then((devices) => {
+            setRow("microphone", devices.some((d) => d.kind === "audioinput"));
+        }).catch(() => setRow("microphone", false));
+    } else {
+        setRow("microphone", false);
+    }
+
+    function checkInternet() {
+        const start = performance.now();
+        fetch("{{ url_for('preassessment.readiness_status') }}", { cache: "no-store" })
+            .then(() => {
+                const latency = performance.now() - start;
+                setRow("stable_internet", latency < 3000);
+            })
+            .catch(() => setRow("stable_internet", false));
+    }
+
+    // --- Server-side checks (camera/face/lighting), polled ---
+    function pollServerChecks() {
+        fetch("{{ url_for('preassessment.readiness_status') }}")
+            .then((res) => res.json())
+            .then((data) => {
+                setRow("camera_connected", data.camera_connected);
+                setRow("face_visible", data.face_visible);
+                setRow("single_face", data.single_face);
+                setRow("good_lighting", data.good_lighting);
+            })
+            .catch(() => {
+                setRow("camera_connected", false);
+                setRow("face_visible", false);
+                setRow("single_face", false);
+                setRow("good_lighting", false);
+            });
+    }
+
+    checkInternet();
+    pollServerChecks();
+    setInterval(pollServerChecks, 3000);
+    setInterval(checkInternet, 5000);
+});
+</script>
+{% endblock %}

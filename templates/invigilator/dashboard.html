@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Live Candidates - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+    <div>
+        <h4 class="mb-0">Live Candidates</h4>
+        <p class="text-muted small mb-0">Auto-refreshes every 15 seconds. {{ sessions|length }} active session(s).</p>
+    </div>
+    <form method="GET" class="d-flex gap-2 flex-wrap">
+        <input type="text" name="q" value="{{ search }}" class="form-control form-control-sm" placeholder="Search candidate name or email" style="min-width:220px;">
+        <select name="risk" class="form-select form-select-sm" style="width:auto;">
+            <option value="">All Risk Levels</option>
+            <option value="Low" {{ 'selected' if risk_filter == 'Low' }}>Low Risk</option>
+            <option value="Medium" {{ 'selected' if risk_filter == 'Medium' }}>Medium Risk</option>
+            <option value="High" {{ 'selected' if risk_filter == 'High' }}>High Risk</option>
+        </select>
+        <button type="submit" class="btn eg-btn-primary btn-sm">Filter</button>
+        {% if search or risk_filter %}
+        <a href="{{ url_for('invigilator.dashboard') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+{% if sessions %}
+<div class="table-responsive">
+    <table class="eg-table">
+        <thead>
+            <tr>
+                <th>Candidate</th>
+                <th>Assessment</th>
+                <th>Progress</th>
+                <th>Time Remaining</th>
+                <th>Integrity Score</th>
+                <th>Risk</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in sessions %}
+            {% set remaining = time_remaining_fn(s) %}
+            <tr>
+                <td>
+                    <strong>{{ s.user.full_name }}</strong><br>
+                    <span class="text-muted small">{{ s.user.email }}</span>
+                </td>
+                <td>{{ s.assessment.name }}</td>
+                <td>{{ s.current_question_index + 1 }} / {{ s.assessment.total_questions }}</td>
+                <td>{{ '%02d:%02d' % (remaining // 60, remaining % 60) }}</td>
+                <td>{{ s.user.integrity_score }} / 100</td>
+                <td>
+                    {% set risk = risk_label_fn(s.user.integrity_score) %}
+                    <span class="eg-badge {{ 'eg-badge-success' if risk == 'Low' else 'eg-badge-warning' if risk == 'Medium' else 'eg-badge-danger' }}">{{ risk }}</span>
+                </td>
+                <td>
+                    {% if s.status == 'paused' %}
+                        <span class="eg-badge eg-badge-warning">Paused</span>
+                    {% else %}
+                        <span class="eg-badge eg-badge-success">In Progress</span>
+                    {% endif %}
+                </td>
+                <td class="text-nowrap">
+                    <a href="{{ url_for('invigilator.session_detail', session_id=s.id) }}" class="btn btn-outline-primary btn-sm">View</a>
+                    {% if s.status == 'in_progress' %}
+                    <form method="POST" action="{{ url_for('invigilator.pause', session_id=s.id) }}" class="d-inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-outline-warning btn-sm">Pause</button>
+                    </form>
+                    {% else %}
+                    <form method="POST" action="{{ url_for('invigilator.resume', session_id=s.id) }}" class="d-inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-outline-success btn-sm">Resume</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card eg-card">
+    <div class="card-body">
+        <div class="eg-empty-state">
+            <i class="bi bi-eye-slash d-block mb-2" style="font-size:1.4rem;"></i>
+            No candidates are currently taking an assessment.
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Real-time-ish refresh: a full reload every 15s is the simplest
+    // reliable way to keep this roster current without maintaining a
+    // parallel client-side rendering path for every column.
+    setTimeout(function () { window.location.reload(); }, 15000);
+});
+</script>
+{% endblock %}

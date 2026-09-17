@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Violations - {{ platform_name }}{% endblock %}
+
+{% block content %}
+<div class="card eg-card">
+    <div class="card-body p-4">
+        <div class="eg-card-header"><i class="bi bi-exclamation-triangle"></i> Monitoring Violations</div>
+        <p class="text-muted small mb-3">Warning and critical events recorded during your monitored sessions.</p>
+
+        {% if events %}
+        <div class="table-responsive">
+            <table class="eg-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Event Type</th>
+                        <th>Severity</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                    <tr>
+                        <td>{{ event.timestamp | local_datetime }}</td>
+                        <td><code>{{ event.event_type }}</code></td>
+                        <td>
+                            {% if event.severity == 'critical' %}
+                                <span class="eg-badge eg-badge-danger">Critical</span>
+                            {% else %}
+                                <span class="eg-badge eg-badge-warning">Warning</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ event.description }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="eg-empty-state">
+            <i class="bi bi-check-circle d-block mb-2" style="font-size:1.4rem;"></i>
+            No violations recorded. Your monitoring history is clean.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
