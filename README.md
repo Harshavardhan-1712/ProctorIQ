@@ -3,8 +3,7 @@
 *(Formerly "ExamGuard" — rebranded in Module 5, Part 1. See "Rebranding" below.)*
 
 ProctorIQ is an enterprise-grade Secure Online Examination Monitoring
-Platform, in the style of TCS iON, IBM Assessment, Pearson VUE, Mercer
-Mettl, or CoCubes.
+Platform.
 
 - **Module 1:** secure candidate registration, login, logout, and a
   protected dashboard.
